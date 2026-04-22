@@ -1,44 +1,69 @@
-from tracemalloc import start
-from typing import List, Optional, Generator
-import pandas as pd
+import chromadb
+from typing import List, Generator
 from backend.Models.Product import Product
 
 class ProductRepository:
-    def __init__(self, categories_path: str, products_path: str, chunksize: int = 10000):
+    def __init__(self, db_path: str = "./data", collection_name: str = "ecommerce_products"):
         """
-        Büyük CSV'ler için memory-efficient repository
-        chunksize: Kaç satır bir seferde belleğe alınsın
+        ChromaDB'den standart veri çekme ve listeleme işlemlerini yönetir.
         """
-        self.categories_df = pd.read_csv(categories_path)
-        self.products_path = products_path
-        self.chunksize = chunksize
+        self.client = chromadb.PersistentClient(path=db_path)
+        self.collection = self.client.get_collection(name=collection_name)
 
-    def get_all(self) -> Generator[Product, None, None]:
+    def get_all(self, chunksize: int = 1000) -> Generator[Product, None, None]:
         """
-        Tüm ürünleri generator olarak döner, memory dostu
+        Tüm ürünleri memory'i şişirmeden parça parça (offset ile) generator olarak döner.
         """
-        for chunk in pd.read_csv(self.products_path, chunksize=self.chunksize):
-            for row in chunk.to_dict(orient="records"):
-                yield Product(**row)
-    def get_paginated(self, page: int, page_size: int):
-        start = (page - 1) * page_size
-        end = start + page_size
+        offset = 0
+        while True:
+            # limit ve offset ile veritabanını yormadan verileri çekiyoruz
+            results = self.collection.get(limit=chunksize, offset=offset)
+            
+            # Veri kalmadıysa döngüyü kır
+            if not results or not results.get("metadatas") or len(results["metadatas"]) == 0:
+                break
+            
+            for meta in results["metadatas"]:
+                yield Product(**meta)
+            
+            offset += chunksize
 
-        index = 0
-
-        for chunk in pd.read_csv(self.products_path, chunksize=self.chunksize):
-            for row in chunk.to_dict(orient="records"):
-                if index >= start and index < end:
-                    yield Product(**row)
-
-                if index >= end:
-                    return
-
-                index += 1
-    def get_by(self, predicate):
-        for chunk in pd.read_csv(self.products_path, chunksize=self.chunksize):
-            for row in chunk.to_dict(orient="records"):
-                product = Product(**row)
-                if predicate(product):
-                    yield product
-    
+    def get_paginated(self, page: int, page_size: int) -> List[Product]:
+        """
+        Sayfalama (Pagination) için offset ve limit kullanarak istenen sayfayı çeker.
+        """
+        offset = (page - 1) * page_size
+        results = self.collection.get(limit=page_size, offset=offset)
+        
+        products = []
+        if results and results.get("metadatas"):
+            for meta in results["metadatas"]:
+                products.append(Product(**meta))
+                
+        return products
+        
+    def get_by_id(self, parent_asin: str) -> Product | None:
+        """
+        Spesifik bir ürünü ID'sine (parent_asin) göre getirir.
+        """
+        results = self.collection.get(ids=[str(parent_asin)])
+        
+        if results and results.get("metadatas") and len(results["metadatas"]) > 0:
+            return Product(**results["metadatas"][0])
+        return None
+    def get_by_filter(self, where_clause: Dict[str, Any], limit: int = 50, offset: int = 0) -> List[Product]:
+        """
+        ChromaDB'nin 'where' parametresini kullanarak veritabanı seviyesinde filtreleme yapar.
+        """
+        results = self.collection.get(
+            where=where_clause,
+            limit=limit,
+            offset=offset
+        )
+        
+        products = []
+        if results and results.get("metadatas"):
+            for meta in results["metadatas"]:
+                products.append(Product(**meta))
+                
+        return products

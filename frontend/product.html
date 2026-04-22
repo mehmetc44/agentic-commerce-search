@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css" />
     <link rel="stylesheet" href="css/styles.css">
-    <title>E-Commerce</title>
+    <title>Product Details - E-Commerce</title>
 </head>
 <body class="bg-light">
     
@@ -21,23 +21,21 @@
                     <div class="col-lg-5 col-sm-8 col-8 order-lg-last">
                         <div class="text-end">
                             <a href="#" class="btn btn-light">
-                                <i class="fa fa-user"></i> <span class="ms-1 d-none d-sm-inline-block">Hesabım</span>
+                                <i class="fa fa-user"></i> <span class="ms-1 d-none d-sm-inline-block">My Account</span>
                             </a>
                             <a href="#" class="btn btn-light">
-                                <i class="fa fa-heart"></i> <span class="ms-1 d-none d-sm-inline-block">Listem</span>
+                                <i class="fa fa-heart"></i> <span class="ms-1 d-none d-sm-inline-block">Wishlist</span>
                             </a>
                             <a href="#" class="btn btn-light">
-                                <i class="fa fa-shopping-cart"></i> <span class="ms-1 d-none d-sm-inline-block">Sepetim</span>
+                                <i class="fa fa-shopping-cart"></i> <span class="ms-1 d-none d-sm-inline-block">My Cart</span>
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <form>
-                            <div class="input-group">
-                                <input type="text" placeholder="Anahtar kelime" class="form-control">
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
-                        </form>
+                        <div class="input-group">
+                            <input type="text" id="searchInput" placeholder="Search keywords..." class="form-control">
+                            <button onclick="search()" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -47,15 +45,9 @@
             <div class="container">
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item">
-                            <a href="#">Anasayfa</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="#">Elektronik</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            Apple Watch Yıldız Işığı...
-                        </li>
+                        <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#" id="breadcrumbCategory" class="text-white">Category</a></li>
+                        <li class="breadcrumb-item active text-white-50" id="breadcrumbTitle" aria-current="page">Product Name</li>
                     </ol>
                 </nav>
             </div>
@@ -68,60 +60,38 @@
                 <div class="col-lg-5">
                     <div class="gallery-wrap">
                         <div class="img-big-wrap img-thumbnail">
-                            <a href="img/1-big.jpeg" data-type="image" data-fslightbox>
-                                <img src="img/1.jpeg" alt="">
-                            </a>
-                        </div>
-                        <div class="thumbs-wrap">
-                            <a href="img/1-big.jpeg" data-type="image" data-fslightbox>
-                                <img src="img/1.jpeg" height="60" alt="">
-                            </a>
-                            <a href="img/2-big.jpeg" data-type="image" data-fslightbox>
-                                <img src="img/2.jpeg" height="60"  alt="">
-                            </a>
-                            <a href="img/3-big.jpeg" data-type="image" data-fslightbox>
-                                <img src="img/3.jpeg" height="60" alt="">
-                            </a>
-                            <a href="img/4-big.jpeg" data-type="image" data-fslightbox>
-                                <img src="img/4.jpeg" height="60" alt="">
+                            <a id="mainImageLink" href="#" data-type="image" data-fslightbox>
+                                <img id="mainImage" src="" alt="Product Image" style="width: 100%; height: auto; object-fit: contain;">
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-7">
                     <article>
-                        <h4 class="title text-dark">Apple Watch Yıldız Işığı Alüminyum Kasa ve Spor Kordon</h4>
-                        <div class="rating-wrap">
-                            <span class="fa fa-star checked"></span>
-                            <span class="fa fa-star checked"></span>
-                            <span class="fa fa-star checked"></span>
-                            <span class="fa fa-star checked"></span>
-                            <span class="fa fa-star"></span>
+                        <h4 class="title text-dark" id="productTitle">Loading Product...</h4>
+                        <div class="rating-wrap mb-2">
+                            <span id="ratingStars"></span>
+                            <span class="ms-2 text-muted" id="ratingCount"></span>
                         </div>
-                        <p class="text-success">Stokta</p>
-                        <div class="mb-3"><b class="price h5">45.999 ₺</b></div>
-                        <div class="product-description mb-3">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Beatae nulla explicabo harum quia. Animi ea quis enim repellat nesciunt impedit laudantium, nemo veniam, unde eligendi architecto ipsam cum voluptatibus vel.</div>
+                        <p class="text-success fw-bold">In Stock</p>
+                        <div class="mb-3"><b class="price h5" id="productPrice">0.00 ₺</b></div>
+                        <div class="product-description mb-3" id="productDescription">
+                            Please wait, product details are loading...
+                        </div>
+                        
                         <dl class="row border-bottom">
-                            <dt class="col-3">Renk</dt>
-                            <dd class="col-9">Yıldız Işığı</dd>
-                            <dt class="col-3">Bağlantı Özellikleri</dt>
-                            <dd class="col-9">GPS</dd>
+                            <dt class="col-3">Store</dt>
+                            <dd class="col-9" id="productStore">-</dd>
+                            <dt class="col-3">Main Category</dt>
+                            <dd class="col-9" id="productMainCat">-</dd>
                         </dl>
-                        <div class="row mb-3">
-                            <div class="col-md-4 col-6">
-                                <label class="form-label">Kasa Boyutu</label>
-                                <select class="form-select">
-                                    <option value="">41 mm</option>
-                                    <option value="">45 mm</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="buttons">
+
+                        <div class="buttons mt-4">
                             <a href="#" class="btn btn-warning">
-                                <i class="fa fa-shopping-basket me-1"></i> Sepete Ekle
+                                <i class="fa fa-shopping-basket me-1"></i> Add to Cart
                             </a>
-                            <a href="#" class="btn btn-light">
-                                <i class="fa-regular fa-heart basket me-1"></i> Listeye Ekle
+                            <a href="#" class="btn btn-light border">
+                                <i class="fa-regular fa-heart me-1"></i> Add to Wishlist
                             </a>
                         </div>
                     </article>
@@ -130,121 +100,27 @@
         </div>
     </section>
 
-    <section class="mt-3">
-        <div class="container">
-            <h4 class="mb-3">Benzer Ürünler</h4>
-            <div class="row gy-3">
-                <div class="col-lg-3 col-sm-6 col-12">
-                    <div class="card shadow">
-                        <div class="img-wrap">
-                            <span class="fa fa-regular fa-heart"></span>
-                            <img src="img/2.jpeg" alt="ürün 1" class="card-img-top">
-                        </div>
-
-                        <div class="border-top info-wrap">
-                            <a href="#" class="title text-truncate">Apple Watch Yıldız Işığı Alüminyum Kasa ve spor Kordon</a>
-                            <div class="price-wrap mb-3">
-                                <span class="price-discount">45.999 ₺</span>
-                                <del class="price">49.999 ₺</del>
-                            </div>
-                            <a href="#" class="btn btn-light w-100">
-                                <i class="fa fa-shopping-basket me-1"></i> Sepete Ekle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6 col-12">
-                    <div class="card shadow">
-                        <div class="img-wrap">
-                            <span class="fa fa-regular fa-heart"></span>
-                            <img src="img/2.jpeg" alt="ürün 1" class="card-img-top">
-                        </div>
-
-                        <div class="border-top info-wrap">
-                            <a href="#" class="title text-truncate">Apple Watch Yıldız Işığı Alüminyum Kasa ve spor Kordon</a>
-                            <div class="price-wrap mb-3">
-                                <span class="price-discount">45.999 ₺</span>
-                                <del class="price">49.999 ₺</del>
-                            </div>
-                            <a href="#" class="btn btn-light w-100">
-                                <i class="fa fa-shopping-basket me-1"></i> Sepete Ekle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6 col-12">
-                    <div class="card shadow">
-                        <div class="img-wrap">
-                            <span class="fa fa-regular fa-heart"></span>
-                            <img src="img/2.jpeg" alt="ürün 1" class="card-img-top">
-                        </div>
-
-                        <div class="border-top info-wrap">
-                            <a href="#" class="title text-truncate">Apple Watch Yıldız Işığı Alüminyum Kasa ve spor Kordon</a>
-                            <div class="price-wrap mb-3">
-                                <span class="price-discount">45.999 ₺</span>
-                                <del class="price">49.999 ₺</del>
-                            </div>
-                            <a href="#" class="btn btn-light w-100">
-                                <i class="fa fa-shopping-basket me-1"></i> Sepete Ekle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6 col-12">
-                    <div class="card shadow">
-                        <div class="img-wrap">
-                            <span class="fa fa-regular fa-heart"></span>
-                            <img src="img/2.jpeg" alt="ürün 1" class="card-img-top">
-                        </div>
-
-                        <div class="border-top info-wrap">
-                            <a href="#" class="title text-truncate">Apple Watch Yıldız Işığı Alüminyum Kasa ve spor Kordon</a>
-                            <div class="price-wrap mb-3">
-                                <span class="price-discount">45.999 ₺</span>
-                                <del class="price">49.999 ₺</del>
-                            </div>
-                            <a href="#" class="btn btn-light w-100">
-                                <i class="fa fa-shopping-basket me-1"></i> Sepete Ekle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="mt-3 py-4 bg-primary">
+    <footer class="mt-5 py-4 bg-primary text-white">
         <div class="container">
             <div class="row gy-3">
                 <div class="col-md-6 col-lg-4">
                     <form>
                         <div class="input-group">
-                            <input type="email" class="form-control" placeholder="Email giriniz.">
-                            <button type="button" class="btn btn-outline-warning">Abone Ol</button>
+                            <input type="email" class="form-control" placeholder="Enter your email">
+                            <button type="button" class="btn btn-outline-warning text-white">Subscribe</button>
                         </div>
                     </form>
                 </div>
-                <div class="col-md-6 col-lg-8">
-                    <nav class="text-center text-md-end">
-                        <a href="#" class="btn btn-icon btn-outline-warning">
-                            <i class="fab fa-facebook"></i>
-                        </a>
-                        <a href="#" class="btn btn-icon btn-outline-warning">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="btn btn-icon btn-outline-warning">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                        <a href="#" class="btn btn-icon btn-outline-warning">
-                            <i class="fab fa-twitter"></i>
-                        </a>
+                <div class="col-md-6 col-lg-8 text-center text-md-end">
+                    <nav>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-twitter"></i></a>
                     </nav>
                 </div>
-                <div class="col-12">
-                    <p class="text-center text-md-start text-white">
-                        @2026 Tüm hakları saklıdır.
-                    </p>
+                <div class="col-12 text-center text-md-start">
+                    <p class="mb-0">© 2026 All rights reserved.</p>
                 </div>
             </div>
         </div>
@@ -252,5 +128,6 @@
 
     <script src="/js/fslightbox.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="js/product.js"></script>
 </body>
 </html>

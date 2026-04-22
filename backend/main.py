@@ -10,8 +10,9 @@ app = FastAPI()
 # CORS middleware (frontend’den API’ye istek için)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # demo için açık, üretimde sınırlı tut
-    allow_methods=["*"],
+    allow_origins=["*"],  # Geliştirme aşamasında her porttan gelen isteğe izin verir
+    allow_credentials=True,
+    allow_methods=["*"],  # GET, POST, PUT, DELETE vb. hepsine izin ver
     allow_headers=["*"],
 )
 
@@ -19,6 +20,7 @@ app.add_middleware(
 # html=True => / isteğinde otomatik index.html açılır
 
 # API routerları
-app.include_router(search_router, prefix="/api")
+# Rotaları uygulamaya dahil etme (sende nasılsa öyle kalsın)
+app.include_router(search_router)
 app.include_router(product_router, prefix="/api")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
