@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Product Details - E-Commerce</title>
+</head>
+<body class="bg-light">
+    
+    <header>
+        <section class="top-bar">
+            <div class="container">
+                <div class="row gy-2 align-items-center">
+                    <div class="col-lg-2 col-sm-4 col-4">
+                        <a href="index.html" class="navbar-brand"><i class="fa-solid fa-truck-fast"></i> E-Commerce</a>
+                    </div>
+                   
+                    <div class="col-lg-5 col-sm-8 col-8 order-lg-last">
+                        <div class="text-end">
+                            <a href="#" class="btn btn-light">
+                                <i class="fa fa-user"></i> <span class="ms-1 d-none d-sm-inline-block">My Account</span>
+                            </a>
+                            <a href="#" class="btn btn-light">
+                                <i class="fa fa-heart"></i> <span class="ms-1 d-none d-sm-inline-block">Wishlist</span>
+                            </a>
+                            <a href="#" class="btn btn-light">
+                                <i class="fa fa-shopping-cart"></i> <span class="ms-1 d-none d-sm-inline-block">My Cart</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" placeholder="Search keywords..." class="form-control">
+                            <button onclick="search()" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-primary p-3">
+            <div class="container">
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#" id="breadcrumbCategory" class="text-white">Category</a></li>
+                        <li class="breadcrumb-item active text-white-50" id="breadcrumbTitle" aria-current="page">Product Name</li>
+                    </ol>
+                </nav>
+            </div>
+        </section>
+    </header>
+
+    <section class="mt-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="gallery-wrap">
+                        <div class="img-big-wrap img-thumbnail">
+                            <a id="mainImageLink" href="#" data-type="image" data-fslightbox>
+                                <img id="mainImage" src="" alt="Product Image" style="width: 100%; height: auto; object-fit: contain;">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <article>
+                        <h4 class="title text-dark" id="productTitle">Loading Product...</h4>
+                        <div class="rating-wrap mb-2">
+                            <span id="ratingStars"></span>
+                            <span class="ms-2 text-muted" id="ratingCount"></span>
+                        </div>
+                        <p class="text-success fw-bold">In Stock</p>
+                        <div class="mb-3"><b class="price h5" id="productPrice">0.00 ₺</b></div>
+                        <div class="product-description mb-3" id="productDescription">
+                            Please wait, product details are loading...
+                        </div>
+                        
+                        <dl class="row border-bottom">
+                            <dt class="col-3">Store</dt>
+                            <dd class="col-9" id="productStore">-</dd>
+                            <dt class="col-3">Main Category</dt>
+                            <dd class="col-9" id="productMainCat">-</dd>
+                        </dl>
+
+                        <div class="buttons mt-4">
+                            <a href="#" class="btn btn-warning">
+                                <i class="fa fa-shopping-basket me-1"></i> Add to Cart
+                            </a>
+                            <a href="#" class="btn btn-light border">
+                                <i class="fa-regular fa-heart me-1"></i> Add to Wishlist
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-5 py-4 bg-primary text-white">
+        <div class="container">
+            <div class="row gy-3">
+                <div class="col-md-6 col-lg-4">
+                    <form>
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Enter your email">
+                            <button type="button" class="btn btn-outline-warning text-white">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6 col-lg-8 text-center text-md-end">
+                    <nav>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="btn btn-icon btn-outline-warning m-1"><i class="fab fa-twitter"></i></a>
+                    </nav>
+                </div>
+                <div class="col-12 text-center text-md-start">
+                    <p class="mb-0">© 2026 All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/fslightbox.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="js/product.js"></script>
+</body>
+</html>
