@@ -1,11 +1,31 @@
 import streamlit as st
+import sys
+import os
+import json
+
+# Add src directory to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
+
+from chatbot.agents.query_analyzer import QueryAnalyzerAgent
 
 # Page Configuration
 st.set_page_config(
-    page_title="Chatbot UI",
-    page_icon="💬",
+    page_title="Chatbot UI - Query Analyzer Test",
+    page_icon="🔍",
     layout="centered"
 )
+
+# Cache agent initialization to prevent reloading LLM on every page refresh
+@st.cache_resource
+def get_query_analyzer():
+    return QueryAnalyzerAgent(temperature=0.0)
+
+try:
+    analyzer = get_query_analyzer()
+    offline_mode = False
+except Exception as e:
+    offline_mode = True
+    offline_error = str(e)
 
 # Premium Custom CSS Styling
 st.markdown("""
@@ -63,14 +83,22 @@ div[data-testid="stChatMessage"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🛍️ E-Commerce Assistant</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle'>Local Prototype Interface (Offline Mode)</p>", unsafe_allow_html=True)
+st.markdown("<h1>🔍 Query Analyzer Agent Tester</h1>", unsafe_allow_html=True)
+if offline_mode:
+    st.markdown(f"<p class='subtitle' style='color: #ef4444;'>Offline Mode (Error: {offline_error})</p>", unsafe_allow_html=True)
+else:
+    st.markdown("<p class='subtitle'>Live Ollama (Llama 3.2) Query Analysis</p>", unsafe_allow_html=True)
 
 # Initialize message history
 if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "Merhaba! Ben e-ticaret asistanınız. Şu an model bağlantısı olmadan, çevrimdışı (offline) modda çalışıyorum. Size nasıl yardımcı olabilirim?"}
-    ]
+    if offline_mode:
+        st.session_state.messages = [
+            {"role": "assistant", "content": f"⚠️ **Ollama bağlantı hatası!** Local modelinize bağlanılamadı. Lütfen Ollama sunucunuzun açık olduğundan emin olun.\n\nHata: `{offline_error}`"}
+        ]
+    else:
+        st.session_state.messages = [
+            {"role": "assistant", "content": "Merhaba! Ben Sorgu Çözümleme Ajanı (Query Analyzer Agent). Arama sorgunuzu girin, ben de onu arka planda analiz edip filtreleri ve intent bilgisini çıkarayım."}
+        ]
 
 # Render chat history
 for message in st.session_state.messages:
@@ -78,14 +106,28 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # User input loop
-if prompt := st.chat_input("Mesajınızı buraya yazın..."):
+if prompt := st.chat_input("Sorgulamak istediğiniz ürünü yazın (Örn: siyah su geçirmez çocuk botu, bütçe 1000 TL)..."):
     # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Render a placeholder assistant response
+    # Render assistant response using the QueryAnalyzerAgent
     with st.chat_message("assistant"):
-        response = f"Mesajınızı aldım: **\"{prompt}\"**\n\n*(Not: Şu an model bağlantısı devre dışı bırakılmıştır. Bu bir arayüz demo yanıtıdır.)*"
-        st.markdown(response)
+        if offline_mode:
+            response = f"⚠️ Ollama sunucusuna bağlanılamadığı için sorgu analiz edilemedi.\n\nHata: `{offline_error}`"
+            st.markdown(response)
+        else:
+            with st.spinner("Sorgu analiz ediliyor..."):
+                try:
+                    # Run analysis
+                    analysis_result = analyzer.analyze(prompt)
+                    # Pretty format the dict to JSON string
+                    json_str = json.dumps(analysis_result, indent=2, ensure_ascii=False)
+                    response = f"### 📊 Çözümleme Sonucu\n\n```json\n{json_str}\n```"
+                except Exception as ex:
+                    response = f"❌ Sorgu analiz edilirken bir hata oluştu:\n`{str(ex)}`"
+                st.markdown(response)
+                
     st.session_state.messages.append({"role": "assistant", "content": response})
+

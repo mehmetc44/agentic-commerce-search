@@ -6,12 +6,12 @@ import pprint
 # Python modül arama yoluna 'src' klasörünü ekliyoruz
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
 
-from chatbot.agents.intent_analyser import IntentAnalyserAgent
+from chatbot.agents.query_analyzer import QueryAnalyzerAgent
 
 def run_test():
-    print("🤖 IntentAnalyserAgent yükleniyor...")
+    print("🤖 QueryAnalyzerAgent yükleniyor...")
     try:
-        agent = IntentAnalyserAgent(temperature=0.0)
+        agent = QueryAnalyzerAgent(temperature=0.0)
     except Exception as e:
         print(f"❌ Ajan başlatılamadı (Ollama çalışıyor mu?): {e}")
         return

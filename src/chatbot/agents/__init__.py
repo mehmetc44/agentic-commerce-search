@@ -1,4 +1,4 @@
 from chatbot.agents.base import BaseAgent
-from chatbot.agents.intent_analyser import IntentAnalyserAgent
+from chatbot.agents.query_analyzer import QueryAnalyzerAgent
 
-__all__ = ["BaseAgent", "IntentAnalyserAgent"]
+__all__ = ["BaseAgent", "QueryAnalyzerAgent"]

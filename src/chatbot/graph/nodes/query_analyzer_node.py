@@ -1,9 +1,9 @@
 import json
 from chatbot.graph.state import ShoppingState
-from chatbot.agents.intent_analyser import IntentAnalyserAgent
+from chatbot.agents.query_analyzer import QueryAnalyzerAgent
 
-# Initialize the Intent Analyser Agent (defaults to Llama 3.2 settings)
-analyser_agent = IntentAnalyserAgent(temperature=0.0)
+# Initialize the QueryAnalyzerAgent (defaults to Llama 3.2 settings)
+analyser_agent = QueryAnalyzerAgent(temperature=0.0)
 
 def query_analyzer(state: ShoppingState):
     query = state["user_query"]
