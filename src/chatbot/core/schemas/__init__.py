@@ -3,7 +3,6 @@ from chatbot.core.schemas.query_analyzer import (
     QueryConstraints,
     QueryPreferences,
     RecipientInfo,
-    ExtractedFiltersSchema,
     QueryUnderstanding,
     QueryUnderstandingResponse,
 )
@@ -13,7 +12,6 @@ __all__ = [
     "QueryConstraints",
     "QueryPreferences",
     "RecipientInfo",
-    "ExtractedFiltersSchema",
     "QueryUnderstanding",
     "QueryUnderstandingResponse",
 ]

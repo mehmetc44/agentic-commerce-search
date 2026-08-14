@@ -1,14 +1,14 @@
-from typing import Any, List, Optional, Dict
+from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 class PriceConstraint(BaseModel):
     min: Optional[float] = Field(
         default=None,
-        description="Minimum acceptable price."
+        description="Minimum acceptable price explicitly stated by the user."
     )
     max: Optional[float] = Field(
         default=None,
-        description="Maximum acceptable price."
+        description="Maximum acceptable price explicitly stated by the user."
     )
 
 class QueryConstraints(BaseModel):
@@ -16,25 +16,25 @@ class QueryConstraints(BaseModel):
         default=None,
         description="Explicit budget or price constraints."
     )
-    attributes: Dict[str, Any] = Field(
+    attributes: dict[str, Any] = Field(
         default_factory=dict,
         description=(
-            "Other explicit product constraints such as color, "
-            "size, waterproofing, brand, compatibility requirements, etc."
+            "Other explicit product constraints such as color, size, "
+            "brand, technical requirements, waterproofing, compatibility, etc."
         )
     )
 
 class QueryPreferences(BaseModel):
-    priorities: List[str] = Field(
+    priorities: list[str] = Field(
         default_factory=list,
         description=(
-            "Preferences or priorities explicitly stated or strongly "
-            "implied by the user."
+            "Only explicitly stated user priorities. "
+            "Do not convert constraints into priorities."
         )
     )
-    attributes: Dict[str, Any] = Field(
+    attributes: dict[str, Any] = Field(
         default_factory=dict,
-        description="Other relevant user preferences."
+        description="Other non-mandatory user preferences."
     )
 
 class RecipientInfo(BaseModel):
@@ -42,22 +42,16 @@ class RecipientInfo(BaseModel):
         default=None,
         description="Relationship between the user and the recipient."
     )
-    attributes: Dict[str, Any] = Field(
+    attributes: dict[str, Any] = Field(
         default_factory=dict,
         description="Relevant information about the recipient."
     )
 
-class ExtractedFiltersSchema(BaseModel):
-    category_taxonomy: List[str] = Field(
-        default_factory=list,
-        description="Always empty list []"
-    )
-
 class QueryUnderstanding(BaseModel):
-    primary_shopping_intent: str = Field(
+    intent: str = Field(
         description=(
-            "The primary shopping intent, such as product_search, "
-            "gift_recommendation, comparison, compatibility_search, "
+            "The primary shopping or conversation intent, such as conversation, "
+            "product_search, gift_recommendation, comparison, compatibility_search, "
             "or decision_support."
         )
     )
@@ -67,8 +61,8 @@ class QueryUnderstanding(BaseModel):
     relevant_product_category: Optional[str] = Field(
         default=None,
         description=(
-            "The general product category mentioned or implied by "
-            "the user's request. Do not map it to a specific catalog taxonomy."
+            "General product category mentioned or implied by the user. "
+            "Do not map it to the catalog taxonomy."
         )
     )
     explicit_constraints: QueryConstraints = Field(
@@ -77,25 +71,22 @@ class QueryUnderstanding(BaseModel):
     )
     user_preferences: QueryPreferences = Field(
         default_factory=QueryPreferences,
-        description="User preferences and priorities relevant to the request."
+        description="User preferences and explicitly stated priorities."
     )
-    contextual_info: Dict[str, Any] = Field(
+    contextual_info: dict[str, Any] = Field(
         default_factory=dict,
         description=(
-            "Relevant contextual information such as occasion, "
-            "use case, background, or circumstances."
+            "Additional contextual information such as occasion, "
+            "use case, background, or circumstances. "
+            "Do not duplicate information represented elsewhere."
         )
     )
     recipient_info: RecipientInfo = Field(
         default_factory=RecipientInfo,
         description=(
-            "Information about the intended recipient when the user "
-            "is shopping for someone else."
+            "Information about the intended recipient when shopping "
+            "for another person."
         )
-    )
-    extracted_filters: ExtractedFiltersSchema = Field(
-        default_factory=ExtractedFiltersSchema,
-        description="Extracted filters for downstream search service integrations."
     )
 
 class QueryUnderstandingResponse(BaseModel):

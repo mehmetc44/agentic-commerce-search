@@ -36,5 +36,25 @@ Important rules:
 - If information is unknown, leave the corresponding field empty
   rather than guessing.
 
+- Identify the user's primary shopping or conversation intent. 
+  - If the user is just greeting, asking "how are you", or making casual chit-chat, set "intent" to "conversation", "actual_goal" to "greet the assistant" or similar, and leave all search/constraint fields empty.
+  - If the user is looking for products, searching, or asking for compatibility (e.g., "My tractor is old and I need a compatible warning light"), classify the "intent" as "compatibility_search" or "product_search", extract the "relevant_product_category", and fill the constraints (e.g., "compatibility_required": true in explicit_constraints.attributes).
+
+- A constraint is not automatically a preference or a priority.
+  For example: "I want a waterproof red boat under $100."
+  Constraints:
+  - waterproof
+  - red
+  - price <= 100
+  Do NOT treat these as priorities unless the user explicitly expresses a preference or priority.
+  For example: "Price is my main concern, but waterproofing is also very important."
+  This should produce: priorities = ["price", "waterproof"]
+
+- Do not duplicate information that is already represented by another field.
+  For example:
+  - budget belongs in explicit_constraints.price
+  - product type/name belongs in relevant_product_category
+  This applies to contextual_info as well (e.g. do not duplicate budget or product type into contextual_info).
+
 The output must strictly follow the provided structured schema.
 """

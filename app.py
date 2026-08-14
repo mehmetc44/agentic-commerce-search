@@ -6,28 +6,16 @@ import json
 # Add src directory to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
 
-from chatbot.agents.query_analyzer import QueryAnalyzerAgent
+from chatbot.graph import app_graph
 
 # Page Configuration
 st.set_page_config(
-    page_title="Chatbot UI - Query Analyzer Test",
-    page_icon="🔍",
+    page_title="Chatbot UI - LangGraph Routing Test",
+    page_icon="🤖",
     layout="centered"
 )
 
-# Cache agent initialization to prevent reloading LLM on every page refresh
-@st.cache_resource
-def get_query_analyzer():
-    return QueryAnalyzerAgent(temperature=0.0)
-
-try:
-    analyzer = get_query_analyzer()
-    offline_mode = False
-except Exception as e:
-    offline_mode = True
-    offline_error = str(e)
-
-# Premium Custom CSS Styling
+# Custom Styling
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@600;800&display=swap');
@@ -83,22 +71,17 @@ div[data-testid="stChatMessage"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🔍 Query Analyzer Agent Tester</h1>", unsafe_allow_html=True)
-if offline_mode:
-    st.markdown(f"<p class='subtitle' style='color: #ef4444;'>Offline Mode (Error: {offline_error})</p>", unsafe_allow_html=True)
-else:
-    st.markdown("<p class='subtitle'>Live Ollama (Llama 3.2) Query Analysis</p>", unsafe_allow_html=True)
+st.markdown("<h1>🤖 LangGraph Agent Router Tester</h1>", unsafe_allow_html=True)
+st.markdown("<p class='subtitle'>Phase 1: Multi-Agent Routing & Chat Demonstration</p>", unsafe_allow_html=True)
 
 # Initialize message history
 if "messages" not in st.session_state:
-    if offline_mode:
-        st.session_state.messages = [
-            {"role": "assistant", "content": f"⚠️ **Ollama bağlantı hatası!** Local modelinize bağlanılamadı. Lütfen Ollama sunucunuzun açık olduğundan emin olun.\n\nHata: `{offline_error}`"}
-        ]
-    else:
-        st.session_state.messages = [
-            {"role": "assistant", "content": "Merhaba! Ben Sorgu Çözümleme Ajanı (Query Analyzer Agent). Arama sorgunuzu girin, ben de onu arka planda analiz edip filtreleri ve intent bilgisini çıkarayım."}
-        ]
+    st.session_state.messages = [
+        {
+            "role": "assistant", 
+            "content": "Merhaba! Ben akıllı yönlendirme asistanınız. Arama veya sohbet mesajınızı buraya yazabilirsiniz. Sorgunuza göre yönlendirme yapacağım."
+        }
+    ]
 
 # Render chat history
 for message in st.session_state.messages:
@@ -106,28 +89,51 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # User input loop
-if prompt := st.chat_input("Sorgulamak istediğiniz ürünü yazın (Örn: siyah su geçirmez çocuk botu, bütçe 1000 TL)..."):
+if prompt := st.chat_input("Mesajınızı yazın (Örn: 'Merhaba nasılsın?' veya 'I need a compatible warning light for my tractor')..."):
     # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Render assistant response using the QueryAnalyzerAgent
+    # Render assistant response by invoking the compiled LangGraph workflow
     with st.chat_message("assistant"):
-        if offline_mode:
-            response = f"⚠️ Ollama sunucusuna bağlanılamadığı için sorgu analiz edilemedi.\n\nHata: `{offline_error}`"
-            st.markdown(response)
-        else:
-            with st.spinner("Sorgu analiz ediliyor..."):
+        with st.spinner("İş akışı yürütülüyor (LangGraph)..."):
+            try:
+                # 1. Initialize State
+                initial_state = {
+                    "user_query": prompt,
+                    "analysis": "",
+                    "response": ""
+                }
+                
+                # 2. Invoke Graph
+                final_state = app_graph.invoke(initial_state)
+                
+                # 3. Retrieve results
+                analysis_str = final_state.get("analysis", "")
+                response_text = final_state.get("response", "Yanıt oluşturulamadı.")
+                
+                # 4. Display Query Understanding JSON schema (if successfully analyzed)
                 try:
-                    # Run analysis
-                    analysis_result = analyzer.analyze(prompt)
-                    # Pretty format the dict to JSON string
-                    json_str = json.dumps(analysis_result, indent=2, ensure_ascii=False)
-                    response = f"### 📊 Çözümleme Sonucu\n\n```json\n{json_str}\n```"
-                except Exception as ex:
-                    response = f"❌ Sorgu analiz edilirken bir hata oluştu:\n`{str(ex)}`"
+                    analysis_dict = json.loads(analysis_str)
+                    st.markdown("### 📊 Çözümleme Ajanı (Query Understanding)")
+                    st.json(analysis_dict)
+                except Exception:
+                    st.markdown("⚠️ Sorgu analizi çözümlenemedi.")
+                
+                # 5. Display the Node's final response
+                st.markdown("### 💬 Ajan Yanıtı")
+                st.markdown(response_text)
+                
+                # Combine both for the persistent chat message history
+                full_display = ""
+                if analysis_str:
+                    full_display += f"**📊 Çözümleme Ajanı:**\n```json\n{json.dumps(json.loads(analysis_str), indent=2, ensure_ascii=False)}\n```\n\n"
+                full_display += f"**💬 Ajan Yanıtı:**\n{response_text}"
+                response = full_display
+                
+            except Exception as ex:
+                response = f"❌ İş akışı yürütülürken hata oluştu:\n`{str(ex)}`"
                 st.markdown(response)
                 
     st.session_state.messages.append({"role": "assistant", "content": response})
-
