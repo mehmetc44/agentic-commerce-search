@@ -1,17 +1,9 @@
-from chatbot.core.schemas.query_analyzer import (
-    PriceConstraint,
-    QueryConstraints,
-    QueryPreferences,
-    RecipientInfo,
-    QueryUnderstanding,
-    QueryUnderstandingResponse,
+from chatbot.core.schemas.intent_analyzer import (
+    IntentAnalysis,
+    IntentAnalysisResponse,
 )
 
 __all__ = [
-    "PriceConstraint",
-    "QueryConstraints",
-    "QueryPreferences",
-    "RecipientInfo",
-    "QueryUnderstanding",
-    "QueryUnderstandingResponse",
+    "IntentAnalysis",
+    "IntentAnalysisResponse",
 ]

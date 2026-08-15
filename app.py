@@ -10,8 +10,8 @@ from chatbot.graph import app_graph
 
 # Page Configuration
 st.set_page_config(
-    page_title="Chatbot UI - LangGraph Routing Test",
-    page_icon="🤖",
+    page_title="Chatbot UI - Intent Analyzer Routing Test",
+    page_icon="🎯",
     layout="centered"
 )
 
@@ -71,15 +71,15 @@ div[data-testid="stChatMessage"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🤖 LangGraph Agent Router Tester</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle'>Phase 1: Multi-Agent Routing & Chat Demonstration</p>", unsafe_allow_html=True)
+st.markdown("<h1>🎯 Intent Analyzer Agent Router</h1>", unsafe_allow_html=True)
+st.markdown("<p class='subtitle'>E-Commerce Intent Classification & Routing Flow</p>", unsafe_allow_html=True)
 
 # Initialize message history
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant", 
-            "content": "Merhaba! Ben akıllı yönlendirme asistanınız. Arama veya sohbet mesajınızı buraya yazabilirsiniz. Sorgunuza göre yönlendirme yapacağım."
+            "content": "Merhaba! Ben Intent Analyzer yönlendirme asistanınız. Arama, tavsiye veya sohbet mesajlarınızı yazabilirsiniz."
         }
     ]
 
@@ -89,7 +89,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # User input loop
-if prompt := st.chat_input("Mesajınızı yazın (Örn: 'Merhaba nasılsın?' veya 'I need a compatible warning light for my tractor')..."):
+if prompt := st.chat_input("Mesajınızı yazın (Örn: 'I am looking for a black case for iPhone 14' veya 'Merhaba nasılsın?')..."):
     # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -97,7 +97,7 @@ if prompt := st.chat_input("Mesajınızı yazın (Örn: 'Merhaba nasılsın?' ve
 
     # Render assistant response by invoking the compiled LangGraph workflow
     with st.chat_message("assistant"):
-        with st.spinner("İş akışı yürütülüyor (LangGraph)..."):
+        with st.spinner("Niyet analiz ediliyor ve yönlendiriliyor (LangGraph)..."):
             try:
                 # 1. Initialize State
                 initial_state = {
@@ -113,23 +113,23 @@ if prompt := st.chat_input("Mesajınızı yazın (Örn: 'Merhaba nasılsın?' ve
                 analysis_str = final_state.get("analysis", "")
                 response_text = final_state.get("response", "Yanıt oluşturulamadı.")
                 
-                # 4. Display Query Understanding JSON schema (if successfully analyzed)
+                # 4. Display Intent Analysis JSON schema
                 try:
                     analysis_dict = json.loads(analysis_str)
-                    st.markdown("### 📊 Çözümleme Ajanı (Query Understanding)")
+                    st.markdown("### 🎯 Niyet Analiz Sonucu (Intent Analyzer)")
                     st.json(analysis_dict)
                 except Exception:
-                    st.markdown("⚠️ Sorgu analizi çözümlenemedi.")
+                    st.markdown("⚠️ Niyet analizi çözümlenemedi.")
                 
-                # 5. Display the Node's final response
-                st.markdown("### 💬 Ajan Yanıtı")
+                # 5. Display Node's final response
+                st.markdown("### 💬 Yönlendirilen Düğüm Yanıtı")
                 st.markdown(response_text)
                 
-                # Combine both for the persistent chat message history
+                # Combine both for persistent message history
                 full_display = ""
                 if analysis_str:
-                    full_display += f"**📊 Çözümleme Ajanı:**\n```json\n{json.dumps(json.loads(analysis_str), indent=2, ensure_ascii=False)}\n```\n\n"
-                full_display += f"**💬 Ajan Yanıtı:**\n{response_text}"
+                    full_display += f"**🎯 Niyet Analiz Sonucu:**\n```json\n{json.dumps(json.loads(analysis_str), indent=2, ensure_ascii=False)}\n```\n\n"
+                full_display += f"**💬 Yönlendirilen Düğüm Yanıtı:**\n{response_text}"
                 response = full_display
                 
             except Exception as ex:
