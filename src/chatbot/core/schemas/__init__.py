@@ -7,6 +7,11 @@ from chatbot.core.schemas.recommendation import (
     RecommendationOutput,
     RecommendationResponse,
 )
+from chatbot.core.schemas.extractor import (
+    ExtractedFilters,
+    ExtractorOutput,
+    ExtractorResponse,
+)
 
 __all__ = [
     "IntentAnalysis",
@@ -14,4 +19,7 @@ __all__ = [
     "SearchTarget",
     "RecommendationOutput",
     "RecommendationResponse",
+    "ExtractedFilters",
+    "ExtractorOutput",
+    "ExtractorResponse",
 ]
