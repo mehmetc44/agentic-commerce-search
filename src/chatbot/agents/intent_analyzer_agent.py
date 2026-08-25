@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from chatbot.agents.base import BaseAgent
+from chatbot.agents.base_agent import BaseAgent
 from chatbot.prompts.intent_analyzer import INTENT_ANALYZER_SYSTEM_PROMPT
 from chatbot.core.schemas.intent_analyzer import IntentAnalysisResponse
 

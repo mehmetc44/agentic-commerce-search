@@ -1,6 +1,6 @@
 import json
 from chatbot.graph.state import ShoppingState
-from chatbot.agents.intent_analyzer import IntentAnalyzerAgent
+from chatbot.agents.intent_analyzer_agent import IntentAnalyzerAgent
 
 # Initialize the IntentAnalyzerAgent (defaults to Llama 3.2 settings)
 analyser_agent = IntentAnalyzerAgent(temperature=0.0)

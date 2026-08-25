@@ -1,6 +1,6 @@
 import json
 from chatbot.graph.state import ShoppingState
-from chatbot.agents.recommendation import RecommendationAgent
+from chatbot.agents.recommendation_agent import RecommendationAgent
 
 recommendation_agent = RecommendationAgent(temperature=0.2)
 

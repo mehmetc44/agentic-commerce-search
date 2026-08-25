@@ -1,6 +1,6 @@
 import json
 from chatbot.graph.state import ShoppingState
-from chatbot.agents.extractor import ExtractorAgent
+from chatbot.agents.extractor_agent import ExtractorAgent
 
 extractor_agent = ExtractorAgent(temperature=0.0)
 

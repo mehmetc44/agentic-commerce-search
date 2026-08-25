@@ -1,4 +1,4 @@
-from chatbot.agents.base import BaseAgent
+from chatbot.agents.base_agent import BaseAgent
 
 class ConversationAgent(BaseAgent):
     """

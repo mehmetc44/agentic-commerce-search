@@ -1,5 +1,5 @@
 from chatbot.graph.state import ShoppingState
-from chatbot.agents.conversation import ConversationAgent
+from chatbot.agents.conversation_agent import ConversationAgent
 
 # Initialize the conversation agent
 conversation_agent = ConversationAgent()

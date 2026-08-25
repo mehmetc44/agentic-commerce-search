@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional
 import json
-from chatbot.agents.base import BaseAgent
+from chatbot.agents.base_agent import BaseAgent
 from chatbot.prompts.extractor import EXTRACTOR_SYSTEM_PROMPT
 from chatbot.core.schemas.extractor import ExtractorResponse
 
