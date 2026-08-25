@@ -8,9 +8,9 @@ class ConversationAgent(BaseAgent):
     def __init__(self, temperature: float = 0.7):
         super().__init__(temperature=temperature)
         self.system_prompt = (
-            "You are a helpful and polite E-commerce Assistant. "
-            "The user is just chatting or greeting you. "
-            "Respond politely, concisely, and ask how you can help them with their shopping needs today."
+            "Yardımsever ve kibar bir E-ticaret Asistanısınız. "
+            "Kullanıcı sizinle sadece sohbet ediyor veya selamlaşıyor. "
+            "Kibar, kısa ve net bir şekilde yanıt verin ve bugün alışveriş ihtiyaçları konusunda onlara nasıl yardımcı olabileceğinizi sorun."
         )
 
     def chat(self, user_message: str) -> str:
