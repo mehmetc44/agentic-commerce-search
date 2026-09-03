@@ -14,13 +14,17 @@ class BaseAgent:
                 "Please configure the key in your .env file."
             )
         
+        headers = {}
+        if settings.OPENROUTER_BASE_URL and "openrouter.ai" in settings.OPENROUTER_BASE_URL:
+            headers = {
+                "HTTP-Referer": "https://github.com/mehmetc44/agentic-commerce-search",
+                "X-Title": "Agentic Commerce Search",
+            }
+        
         self.llm = ChatOpenAI(
             model=settings.OPENROUTER_MODEL,
             openai_api_key=api_key,
             openai_api_base=settings.OPENROUTER_BASE_URL,
             temperature=temperature,
-            default_headers={
-                "HTTP-Referer": "https://github.com/mehmetc44/agentic-commerce-search",
-                "X-Title": "Agentic Commerce Search",
-            }
+            default_headers=headers if headers else None
         )

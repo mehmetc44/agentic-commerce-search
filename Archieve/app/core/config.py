@@ -2,7 +2,7 @@ import os
 
 class Settings:
     OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL_NAME: str = "llama3.2"
+    OLLAMA_MODEL_NAME: str = "llama3"
     OLLAMA_TIMEOUT: int = 60
     LLM_TEMPERATURE: float = 0.35
 
