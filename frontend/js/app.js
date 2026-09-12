@@ -4,40 +4,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = document.getElementById('chatMessages');
     const typingIndicator = document.getElementById('typingIndicator');
 
-    // Simulate backend LangGraph process
-    const mockBackendCall = async (query) => {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let intent = "UNKNOWN";
-                let responseText = "";
+    // Call backend LangGraph API
+    const callBackendAPI = async (query) => {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: query })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API hatası: ${response.status}`);
+        }
+        
+        return await response.json();
+    };
 
-                const lowerQuery = query.toLowerCase();
-                
-                if (lowerQuery.includes('ara') || lowerQuery.includes('kılıf') || lowerQuery.includes('telefon')) {
-                    intent = "SEARCH";
-                    responseText = "Harika! Siyah iPhone 14 kılıflarını sizin için arıyorum. İşte en çok satan 3 model:\n\n1. Spigen Liquid Air Siyah Kılıf\n2. Apple Orijinal Deri Kılıf (Siyah)\n3. Baseus Ultra İnce Silikon Kılıf";
-                } else if (lowerQuery.includes('öner') || lowerQuery.includes('tavsiye')) {
-                    intent = "RECOMMENDATION";
-                    responseText = "Size özel önerilerim var! Son incelediğiniz ürünlere dayanarak Spigen'in kılıfları tam size göre olabilir. Şık ve dayanıklı bir tasarıma sahipler.";
+    // JSON Syntax Highlighter
+    const syntaxHighlight = (jsonStr) => {
+        let json = jsonStr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
                 } else {
-                    intent = "CHAT";
-                    responseText = "Merhaba! Size e-ticaret deneyiminizde nasıl yardımcı olabilirim? Ürün arayabilir veya tavsiye isteyebilirsiniz.";
+                    cls = 'string';
                 }
-
-                const analysis = {
-                    intent: intent,
-                    confidence: 0.95,
-                    entities: {
-                        product_type: lowerQuery.includes('kılıf') ? "kılıf" : null,
-                        color: lowerQuery.includes('siyah') ? "siyah" : null
-                    }
-                };
-
-                resolve({
-                    analysis: JSON.stringify(analysis, null, 2),
-                    response: responseText
-                });
-            }, 1500); // 1.5 second simulated delay
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
         });
     };
 
@@ -45,8 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatAssistantMessage = (data) => {
         let html = '';
         if (data.analysis) {
+            let prettyJson = data.analysis;
+            try {
+                // Prettify if it is a valid JSON string but compressed
+                const parsed = JSON.parse(data.analysis);
+                prettyJson = JSON.stringify(parsed, null, 2);
+            } catch(e) {}
+            
             html += `<h3><i class="fa-solid fa-bullseye"></i> Niyet Analiz Sonucu:</h3>`;
-            html += `<pre><code>${data.analysis}</code></pre>`;
+            html += `<pre><code>${syntaxHighlight(prettyJson)}</code></pre>`;
         }
         html += `<h3><i class="fa-regular fa-comment-dots"></i> Yönlendirilen Düğüm Yanıtı:</h3>`;
         // Convert basic newlines to paragraphs
@@ -103,9 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         typingIndicator.style.display = 'flex';
         chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
 
-        // 4. Simulate API call
+        // 4. Call API
         try {
-            const result = await mockBackendCall(query);
+            const result = await callBackendAPI(query);
             
             // 5. Hide typing indicator
             typingIndicator.style.display = 'none';

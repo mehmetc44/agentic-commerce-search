@@ -1,5 +1,6 @@
-# Streamlit for UI
-streamlit>=1.60.0
+# FastAPI and Uvicorn for backend API
+fastapi>=0.109.0
+uvicorn>=0.27.0
 
 # LangGraph for multi-agent workflows
 langgraph>=1.2.10
