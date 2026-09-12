@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 import json
 from chatbot.agents.base_agent import BaseAgent
 from chatbot.prompts.extractor import EXTRACTOR_SYSTEM_PROMPT
-from chatbot.core.schemas.extractor import ExtractorResponse
+from chatbot.core.schemas.extractor import ExtractorOutput
 
 class ExtractorAgent(BaseAgent):
     """
@@ -13,7 +13,7 @@ class ExtractorAgent(BaseAgent):
     def __init__(self, temperature: float = 0.0):
         super().__init__(temperature=temperature)
         self.system_prompt = EXTRACTOR_SYSTEM_PROMPT
-        self.structured_llm = self.llm.with_structured_output(ExtractorResponse)
+        self.structured_llm = self.llm.with_structured_output(ExtractorOutput, method="json_mode")
 
     def extract(self, query: str, context_analysis: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -26,8 +26,9 @@ class ExtractorAgent(BaseAgent):
         prompt = (
             f"{self.system_prompt}\n\n"
             f"TARGET SEARCH QUERY / INPUT: \"{query}\"\n"
-            f"{ctx_str}"
+            f"{ctx_str}\n\n"
+            "Please respond in valid JSON format."
         )
 
         response = self.structured_llm.invoke(prompt)
-        return response.model_dump()
+        return {"extraction": response.model_dump()}

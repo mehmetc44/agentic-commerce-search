@@ -25,6 +25,6 @@ BİRİNCİL GÖREVLERİNİZ:
      - `"semantic_vector_search"`: Az sayıda kesin veritabanı filtresi içeren, açıklayıcı/sıfat ağırlıklı sorgularda.
      - `"hybrid_search"`: Kesin SQL filtreleri (marka/fiyat) ile semantik vektör aramasının karışımında.
 
-4. DİL TUTARLILIĞI:
-   - Tüm yapılandırılmış metin alanlarını ve çıktıları temiz, profesyonel TÜRKÇE ile üretin.
+5. ÇIKTI FORMATI:
+   - Yanıtınızı YALNIZCA belirtilen şemaya uygun geçerli bir JSON nesnesi olarak üretin. Extra metin veya yorum eklemeyin.
 """

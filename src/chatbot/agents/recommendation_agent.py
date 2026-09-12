@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 import json
 from chatbot.agents.base_agent import BaseAgent
 from chatbot.prompts.recommendation import RECOMMENDATION_SYSTEM_PROMPT
-from chatbot.core.schemas.recommendation import RecommendationResponse
+from chatbot.core.schemas.recommendation import RecommendationOutput
 
 class RecommendationAgent(BaseAgent):
     """
@@ -13,7 +13,7 @@ class RecommendationAgent(BaseAgent):
     def __init__(self, temperature: float = 0.2):
         super().__init__(temperature=temperature)
         self.system_prompt = RECOMMENDATION_SYSTEM_PROMPT
-        self.structured_llm = self.llm.with_structured_output(RecommendationResponse)
+        self.structured_llm = self.llm.with_structured_output(RecommendationOutput, method="json_mode")
 
     def recommend(self, query: str, intent_analysis: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -26,8 +26,9 @@ class RecommendationAgent(BaseAgent):
         prompt = (
             f"{self.system_prompt}\n\n"
             f"USER QUERY: \"{query}\"\n"
-            f"{analysis_context}"
+            f"{analysis_context}\n\n"
+            "Please respond in valid JSON format."
         )
         
         response = self.structured_llm.invoke(prompt)
-        return response.model_dump()
+        return {"recommendation": response.model_dump()}

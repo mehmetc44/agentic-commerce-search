@@ -1,4 +1,4 @@
-from chatbot.agents.base_agent import BaseAgent
+from chatbot.agents.base_agent import BaseAgent, clean_llm_text
 
 class ConversationAgent(BaseAgent):
     """
@@ -10,7 +10,8 @@ class ConversationAgent(BaseAgent):
         self.system_prompt = (
             "Yardımsever ve kibar bir E-ticaret Asistanısınız. "
             "Kullanıcı sizinle sadece sohbet ediyor veya selamlaşıyor. "
-            "Kibar, kısa ve net bir şekilde yanıt verin ve bugün alışveriş ihtiyaçları konusunda onlara nasıl yardımcı olabileceğinizi sorun."
+            "Kibar, kısa ve net bir şekilde yanıt verin ve bugün alışveriş ihtiyaçları konusunda onlara nasıl yardımcı olabileceğinizi sorun. "
+            "Asla düşünce blokları (<think>), giriş/gelişme açıklamaları veya gereksiz yorum eklemeyin."
         )
 
     def chat(self, user_message: str) -> str:
@@ -22,4 +23,5 @@ class ConversationAgent(BaseAgent):
             {"role": "user", "content": user_message}
         ]
         response = self.llm.invoke(messages)
-        return response.content.strip()
+        content = response.content if hasattr(response, "content") else str(response)
+        return clean_llm_text(content)

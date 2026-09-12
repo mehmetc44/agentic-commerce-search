@@ -29,6 +29,7 @@ KRİTİK KALİTE TALİMATLARI VE ÇIKTI ALAN GEREKSİNİMLERİ:
    - Sadece hayati bağlam tamamen eksik olduğunda `action` değerini `"ask_clarification"` yapın (örn. alıcı, bütçe veya durum belirtilmeden "Hediye ihtiyacım var" denmesi).
    - `action` `"ask_clarification"` olduğunda, `clarification_question` alanını 1-2 odaklanmış, yardımcı soruyla doldurmalısınız (örn. "Hediye kimin için, hangi vesileyle alınıyor ve aklınızda belirli bir bütçe var mı?").
 
-5. DİL TUTARLILIĞI:
+5. DİL TUTARLILIĞI VE ÇIKTI FORMATI:
    - Tüm yanıt çıktısı temiz, profesyonel TÜRKÇE dilinde olmalıdır.
+   - Yanıtınızı YALNIZCA belirtilen şemaya uygun geçerli bir JSON nesnesi olarak üretin. Extra metin veya yorum eklemeyin.
 """

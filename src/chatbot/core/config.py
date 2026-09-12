@@ -8,14 +8,15 @@ class Settings:
     """
     Project settings loaded from environment variables.
     """
-    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3")
-    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "deepseek")
     
-    # OpenRouter / Nvidia Model Settings
-    NVIDIA_MODEL_KEY: str = os.getenv("NVIDIA_MODEL_KEY", "")
-    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3.5-lightning:free")
-    OPENROUTER_BASE_URL: str = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+    # DeepSeek API Settings
+    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
+    DEEPSEEK_MODEL: str = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+    DEEPSEEK_BASE_URL: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    
+    # Ollama Settings (Optional)
+    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
+    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
 settings = Settings()
