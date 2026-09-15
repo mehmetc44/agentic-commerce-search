@@ -48,6 +48,9 @@ def list_closest_products(category_ids: List[str], product_query: str, brand: st
                 "title": p.get("title"),
                 "price": 0, # Note: Price is generated dynamically in UI, or add actual DB price column later.
                 "category_id": p.get("category_id"),
+                "image_url": p.get("image_url"),
+                "brand": p.get("brand"),
+                "color": p.get("color"),
                 "match_score": f"{p.get('cross_encoder_score', 0):.1f}%"
             })
             

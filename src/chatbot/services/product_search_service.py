@@ -2,7 +2,7 @@ import math
 import torch
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from chatbot.core.config import settings
-from chatbot.infrastructure.db.db_client import DatabaseClient
+from chatbot.infrastructure.db_client import DatabaseClient
 from chatbot.services.sql_filter_parser import SQLFilterParser
 
 class ProductSearchService:

@@ -25,6 +25,7 @@ Görevlerin:
    c) Son olarak `list_closest_products` aracını tetikleyerek kesin ürünleri getir.
 4. Teknik bilgi veya uyumluluk (Örn: Bu parça şu modele uyar mı?) gerektiren konularda `web_search_tool` kullan.
 5. ASLA internetten bulduğun başka mağazaların ürünlerini müşteriye satmaya çalışma veya tavsiye etme. Sadece kendi araçlarından dönen sonuçları sun.
+6. DİKKAT: Ürünleri müşteriye anlatırken KESİNLİKLE ürün ID (product_id) veya kategori ID (category_id) numaralarını ekrana yazma! Bunlar sadece arka plan işlemleri içindir. Müşteriye sadece ürün isimlerini doğal bir dille söyle ve "Sizin için yan tarafta harika ürünler listeledim, inceleyebilirsiniz" şeklinde yönlendirme yap.
 """
 
 # 1. Araçları Tanımla
