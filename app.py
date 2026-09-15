@@ -40,10 +40,12 @@ async def chat_endpoint(request: ChatRequest):
         # Retrieve results
         analysis_str = final_state.get("analysis", "")
         response_text = final_state.get("response", "Yanıt oluşturulamadı.")
+        products = final_state.get("products", [])
         
         return {
             "analysis": analysis_str,
-            "response": response_text
+            "response": response_text,
+            "products": products
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
