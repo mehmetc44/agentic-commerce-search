@@ -98,7 +98,7 @@ async function sendChatMessage() {
             
             const sectionTitle = document.querySelector("h3.h4");
             if (sectionTitle) {
-                sectionTitle.innerText = `Sizin için bulunan ürünler (${data.products.length})`;
+                sectionTitle.innerText = `🤖 AI Önerileri (${data.products.length} ürün)`;
             }
             renderProducts(data.products, true);
         }
@@ -108,7 +108,7 @@ async function sendChatMessage() {
         
         logsContainer.innerHTML += `
             <div class="d-flex justify-content-start mb-3">
-                <div class="bg-white p-3 rounded shadow-sm" style="max-width: 90%; border-left: 4px solid #0d6efd;">
+                <div class="bg-white p-3 rounded shadow-sm" style="max-width: 90%; border-left: 4px solid var(--secondary, #D2691E);">
                     ${parsedResponse}
                 </div>
             </div>
