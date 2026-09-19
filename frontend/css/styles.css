@@ -232,6 +232,11 @@ h1, h2, h3, h4, h5, h6 {
 .carousel-inner {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
+    max-height: 350px;
+}
+.carousel-item img {
+    height: 350px;
+    object-fit: cover;
 }
 
 /* Breadcrumbs */
