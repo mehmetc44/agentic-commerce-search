@@ -15,7 +15,12 @@ class ProductRepository:
         conn = DBContext.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+                cursor.execute("""
+                    SELECT p.*, c.full_path 
+                    FROM products p
+                    LEFT JOIN categories c ON p.category_id = c.id
+                    WHERE p.id = %s
+                """, (product_id,))
                 return cursor.fetchone()
         finally:
             DBContext.release_connection(conn)

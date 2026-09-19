@@ -1,89 +1,170 @@
-// Consistent random price generator (based on Product ID) - 5$ ile 25$ arası
-function generatePrice(productId) {
-    let hash = 0;
-    for (let i = 0; i < productId.length; i++) {
-        hash = productId.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const price = 5 + (Math.abs(hash) % 21); // Between 5 and 25
-    return price.toFixed(2);
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Get product ID from URL (e.g. product.html?id=some-product-id)
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
     if (!productId) {
-        document.getElementById("productTitle").innerText = "Product ID not found.";
+        document.getElementById("productTitle").innerText = "Ürün Bulunamadı.";
         return;
     }
 
     try {
-        // 2. Fetch product details from Backend
+        // 1. Fetch product details
         const response = await fetch(`/api/v1/products/${productId}`);
-        
-        if (!response.ok) {
-            throw new Error("Product could not be loaded.");
-        }
+        if (!response.ok) throw new Error("Ürün yüklenemedi.");
 
         const data = await response.json();
-        const product = data.data;
+        const product = data.data || data;
 
-        // Price Generation
-        const priceValue = generatePrice(product.product_id);
-
-        // 3. Fill HTML elements
-        document.getElementById("productTitle").innerText = product.title || "No Title Available";
-        document.getElementById("breadcrumbTitle").innerText = product.title || "Product";
-        document.getElementById("breadcrumbCategory").innerText = product.category_taxonomy || product.product_type || "General";
+        // Populate basic text
+        document.getElementById("productTitle").innerText = product.name || product.title || "İsimsiz Ürün";
+        document.getElementById("breadcrumbTitle").innerText = product.name || product.title || "Ürün";
         
-        document.getElementById("productPrice").innerText = `${priceValue} $`;
-        document.getElementById("productDescription").innerText = product.description || "No description available for this product yet.";
+        let breadcrumbCat = product.full_path || product.brand || "Kategori";
+        // If there's a full_path like "Giyim > Erkek > Tişört", we can replace '>' with something else or just keep it
+        // The user wants full category taxonomy e.g., "Giyim > Erkek > Tişört"
+        document.getElementById("breadcrumbCategory").innerText = breadcrumbCat;
         
-        // Add extra specs
-        let specsHtml = "";
-        if (product.brand) specsHtml += `<dt class="col-4 text-muted">Brand</dt><dd class="col-8">${product.brand}</dd>`;
-        if (product.color) specsHtml += `<dt class="col-4 text-muted">Color</dt><dd class="col-8">${product.color}</dd>`;
-        if (product.material) specsHtml += `<dt class="col-4 text-muted">Material</dt><dd class="col-8">${product.material}</dd>`;
-        if (product.style) specsHtml += `<dt class="col-4 text-muted">Style</dt><dd class="col-8">${product.style}</dd>`;
-        if (product.product_type) specsHtml += `<dt class="col-4 text-muted">Type</dt><dd class="col-8">${product.product_type}</dd>`;
-        if (product.category_taxonomy) specsHtml += `<dt class="col-4 text-muted">Category</dt><dd class="col-8">${product.category_taxonomy}</dd>`;
-        
-        const detailsContainer = document.querySelector("dl.row");
-        if (detailsContainer && specsHtml) {
-            detailsContainer.innerHTML = specsHtml;
-        }
+        const priceText = product.price ? `${product.price} ${product.currency || 'TL'}` : 'Fiyat Belirtilmemiş';
+        document.getElementById("productPrice").innerText = priceText;
 
-        // Image placement
-        const imageUrl = product.image_url ? product.image_url : "https://via.placeholder.com/600x600?text=No+Image";
-        const mainImg = document.getElementById("mainImage");
-        if (mainImg) {
-            mainImg.src = imageUrl;
-            mainImg.style.mixBlendMode = "multiply";
-            document.getElementById("mainImageLink").href = imageUrl;
-            
-            // Refresh fslightbox
-            if (typeof refreshFsLightbox === 'function') refreshFsLightbox();
-        }
-
-        // Rating Stars (Random 3-5 stars)
+        // Rating Stars
         const ratingStars = document.getElementById("ratingStars");
+        const rating = product.rating || 0;
+        const reviewCount = product.review_count || product.rating_count || 0;
+        
         if (ratingStars) {
             ratingStars.innerHTML = "";
-            const stars = 3 + (Math.abs(productId.charCodeAt(0)) % 3); // Between 3 and 5
-            for (let i = 1; i <= 5; i++) {
-                if (i <= stars) {
-                    ratingStars.innerHTML += `<span class="fa fa-star text-warning"></span>`;
-                } else {
-                    ratingStars.innerHTML += `<span class="fa fa-star text-secondary"></span>`;
+            const fullStars = Math.floor(rating);
+            const halfStar = (rating % 1) >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+            
+            for(let i=0; i<fullStars; i++) ratingStars.innerHTML += '<i class="fa-solid fa-star text-warning"></i>';
+            if(halfStar) ratingStars.innerHTML += '<i class="fa-solid fa-star-half-stroke text-warning"></i>';
+            for(let i=0; i<emptyStars; i++) ratingStars.innerHTML += '<i class="fa-regular fa-star text-warning"></i>';
+            
+            document.getElementById("ratingScoreText").innerText = rating > 0 ? rating.toFixed(1) : "";
+            document.getElementById("ratingCount").innerText = `${reviewCount} Değerlendirme`;
+        }
+
+        // Images Carousel
+        const carouselInner = document.getElementById("carouselInner");
+        if (carouselInner) {
+            carouselInner.innerHTML = "";
+            let images = [];
+            
+            if (product.images && Array.isArray(product.images)) {
+                images = product.images;
+            } else if (product.image_url) {
+                images = [product.image_url];
+            } else {
+                images = ["https://via.placeholder.com/600x600?text=Görsel+Yok"];
+            }
+
+            images.forEach((imgUrl, index) => {
+                carouselInner.innerHTML += `
+                    <div class="carousel-item ${index === 0 ? 'active' : ''} h-100">
+                        <div class="d-flex align-items-center justify-content-center h-100 p-2">
+                            <img src="${imgUrl}" alt="Ürün Görseli ${index + 1}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Hide carousel controls if only 1 image
+            if(images.length <= 1) {
+                document.querySelectorAll('.carousel-control-prev, .carousel-control-next').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        // Attributes Table
+        const attributesTable = document.querySelector("#attributesTable tbody");
+        if (attributesTable) {
+            attributesTable.innerHTML = "";
+            if (product.attributes && typeof product.attributes === 'object') {
+                for (const [key, value] of Object.entries(product.attributes)) {
+                    if (value && typeof value !== 'object') {
+                        attributesTable.innerHTML += `
+                            <tr>
+                                <th class="w-50 text-muted bg-light">${key}</th>
+                                <td class="w-50 fw-medium">${value}</td>
+                            </tr>
+                        `;
+                    }
                 }
             }
-            document.getElementById("ratingCount").innerText = `${(Math.abs(productId.charCodeAt(1)) % 100) + 15} Reviews`;
+            if (product.brand) {
+                attributesTable.innerHTML = `<tr><th class="w-50 text-muted bg-light">Marka</th><td class="w-50 fw-medium">${product.brand}</td></tr>` + attributesTable.innerHTML;
+            }
+            
+            if (attributesTable.innerHTML === "") {
+                attributesTable.innerHTML = `<tr><td colspan="2" class="text-muted">Bu ürüne ait özellik bilgisi bulunamadı.</td></tr>`;
+            }
         }
+
+        // Fetch Reviews
+        await loadReviews(productId);
 
     } catch (error) {
         console.error("Error loading product:", error);
-        document.getElementById("productTitle").innerText = "An error occurred while loading the product.";
-        document.getElementById("productDescription").innerText = "";
+        document.getElementById("productTitle").innerText = "Ürün yüklenirken bir hata oluştu.";
     }
 });
+
+async function loadReviews(productId) {
+    const reviewsContainer = document.getElementById("reviewsContainer");
+    if (!reviewsContainer) return;
+    
+    try {
+        const response = await fetch(`/api/v1/reviews/product/${productId}`);
+        if (!response.ok) throw new Error("Yorumlar yüklenemedi.");
+        
+        const reviews = await response.json();
+        
+        if (!reviews || reviews.length === 0) {
+            reviewsContainer.innerHTML = `<div class="text-muted text-center py-4">Bu ürün için henüz değerlendirme yapılmamış. İlk değerlendiren siz olun!</div>`;
+            return;
+        }
+
+        reviewsContainer.innerHTML = ""; // clear loading
+        
+        // Render first 20 reviews
+        reviews.slice(0, 20).forEach(review => {
+            const stars = review.rating || 5;
+            let starsHtml = "";
+            for(let i=0; i<5; i++) {
+                if(i < stars) starsHtml += '<i class="fa-solid fa-star text-warning" style="font-size: 0.85rem;"></i>';
+                else starsHtml += '<i class="fa-regular fa-star text-warning" style="font-size: 0.85rem;"></i>';
+            }
+            
+            const author = review.author || "Gizli Kullanıcı";
+            // Create masked username e.g., M** Y**
+            const authorParts = author.split(" ");
+            const maskedAuthor = authorParts.map(p => p.charAt(0) + "***").join(" ");
+            
+            const dateObj = new Date(review.review_date);
+            const dateStr = !isNaN(dateObj) ? dateObj.toLocaleDateString('tr-TR') : review.review_date;
+            
+            reviewsContainer.innerHTML += `
+                <div class="review-item border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            ${starsHtml}
+                        </div>
+                        <div class="text-muted small">
+                            ${dateStr}
+                        </div>
+                    </div>
+                    <p class="mb-2 text-dark" style="font-size: 0.95rem; line-height: 1.5;">${review.review_text || ""}</p>
+                    <div class="d-flex align-items-center text-muted small">
+                        <span class="fw-bold me-2">${maskedAuthor}</span>
+                        <span class="text-success"><i class="fa-solid fa-check-circle me-1"></i> Ürünü Satın Aldı</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+    } catch (error) {
+        console.error("Error loading reviews:", error);
+        reviewsContainer.innerHTML = `<div class="text-danger text-center py-4">Değerlendirmeler yüklenirken bir hata oluştu.</div>`;
+    }
+}

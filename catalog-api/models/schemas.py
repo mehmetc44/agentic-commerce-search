@@ -19,6 +19,7 @@ class ProductBase(BaseModel):
     name: str
     trendyol_id: Optional[str] = None
     category_id: Optional[int] = None
+    full_path: Optional[str] = None
     brand: Optional[str] = None
     gender: Optional[str] = None
     color: Optional[str] = None
