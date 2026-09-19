@@ -13,6 +13,13 @@ def get_categories(limit: int = 100):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/main", response_model=List[CategoryResponse])
+def get_main_categories(limit: int = 100):
+    try:
+        return service.get_main_categories(limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/{category_id}", response_model=CategoryResponse)
 def get_category(category_id: int):
     try:

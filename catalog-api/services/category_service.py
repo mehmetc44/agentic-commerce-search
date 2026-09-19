@@ -9,3 +9,6 @@ class CategoryService:
 
     def get_category(self, category_id: int):
         return self.repository.get_by_id(category_id)
+
+    def get_main_categories(self, limit: int = 100):
+        return self.repository.get_main_categories(limit)

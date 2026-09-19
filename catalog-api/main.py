@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from context.DBContext import DBContext
 from controllers.categories_controller import router as categories_router
 from controllers.products_controller import router as products_router
@@ -26,10 +28,19 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-app.include_router(categories_router)
-app.include_router(products_router)
-app.include_router(reviews_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-def read_root():
-    return {"message": "Catalog API başarıyla çalışıyor! (Temiz N-Tier Mimari)"}
+api_router = APIRouter(prefix="/api/v1")
+api_router.include_router(categories_router)
+api_router.include_router(products_router)
+api_router.include_router(reviews_router)
+
+app.include_router(api_router)
+
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")

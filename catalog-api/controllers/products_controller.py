@@ -24,3 +24,17 @@ def get_product(product_id: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/category/{category_id}", response_model=List[ProductResponse])
+def get_products_by_category(category_id: int, limit: int = 100):
+    try:
+        return service.get_products_by_category(category_id, limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/main-category/{category_id}", response_model=List[ProductResponse])
+def get_products_by_main_category(category_id: int, limit: int = 100):
+    try:
+        return service.get_products_by_main_category(category_id, limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

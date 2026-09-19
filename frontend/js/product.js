@@ -1,132 +1,89 @@
-// ================================================================
-//  product.js — Ürün Detay Sayfası
-//  catalog-api'den (:8001) tekil ürün getirir ve sayfayı doldurur.
-// ================================================================
-
-const CATALOG_API = "http://localhost:8001";
-
-// Deterministik fiyat üretici (app.js ile aynı algoritma)
+// Consistent random price generator (based on Product ID) - 5$ ile 25$ arası
 function generatePrice(productId) {
     let hash = 0;
     for (let i = 0; i < productId.length; i++) {
         hash = productId.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return (199 + (Math.abs(hash) % 1800)).toFixed(2);
-}
-
-// Deterministik yıldız sayısı (3–5)
-function generateStars(productId) {
-    return 3 + (Math.abs(productId.charCodeAt(0) || 0) % 3);
-}
-
-// Deterministik değerlendirme sayısı (15–114)
-function generateReviewCount(productId) {
-    return (Math.abs(productId.charCodeAt(1) || 0) % 100) + 15;
+    const price = 5 + (Math.abs(hash) % 21); // Between 5 and 25
+    return price.toFixed(2);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const params    = new URLSearchParams(window.location.search);
-    const productId = params.get("id");
-
-    const titleEl       = document.getElementById("productTitle");
-    const priceEl       = document.getElementById("productPrice");
-    const descEl        = document.getElementById("productDescription");
-    const starsEl       = document.getElementById("ratingStars");
-    const reviewEl      = document.getElementById("ratingCount");
-    const breadCatEl    = document.getElementById("breadcrumbCategory");
-    const breadTitleEl  = document.getElementById("breadcrumbTitle");
-    const mainImgEl     = document.getElementById("mainImage");
-    const mainImgLinkEl = document.getElementById("mainImageLink");
-    const specsEl       = document.querySelector("dl.row");
-    const storeEl       = document.getElementById("productStore");
-    const mainCatEl     = document.getElementById("productMainCat");
+    // 1. Get product ID from URL (e.g. product.html?id=some-product-id)
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
 
     if (!productId) {
-        if (titleEl) titleEl.innerText = "Ürün ID bulunamadı.";
+        document.getElementById("productTitle").innerText = "Product ID not found.";
         return;
     }
 
-    // Yükleniyor göstergesi
-    if (titleEl) titleEl.innerText = "Yükleniyor...";
-
     try {
-        const res = await fetch(`${CATALOG_API}/products/${encodeURIComponent(productId)}`);
-
-        if (res.status === 404) {
-            if (titleEl) titleEl.innerText = "Ürün bulunamadı.";
-            if (descEl)  descEl.innerText  = "Bu ürün mevcut değil veya kaldırılmış olabilir.";
-            return;
+        // 2. Fetch product details from Backend
+        const response = await fetch(`/api/v1/products/${productId}`);
+        
+        if (!response.ok) {
+            throw new Error("Product could not be loaded.");
         }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const { data: p } = await res.json();
+        const data = await response.json();
+        const product = data.data;
 
-        // ── Başlık & Breadcrumb ──────────────────────────────
-        const title = p.title || "Başlık Yok";
-        if (titleEl)      titleEl.innerText      = title;
-        if (breadTitleEl) breadTitleEl.innerText  = title;
-        if (breadCatEl)   breadCatEl.innerText    = p.category_taxonomy || p.product_type || "Genel";
+        // Price Generation
+        const priceValue = generatePrice(product.product_id);
 
-        // ── Fiyat ───────────────────────────────────────────
-        const price = generatePrice(String(p.product_id));
-        if (priceEl) priceEl.innerText = `${price} ₺`;
-
-        // ── Açıklama ─────────────────────────────────────────
-        if (descEl) descEl.innerText = p.description || "Bu ürün için henüz açıklama eklenmemiş.";
-
-        // ── Yıldız & Değerlendirme ───────────────────────────
-        if (starsEl) {
-            const stars = generateStars(String(p.product_id));
-            starsEl.innerHTML = Array.from({ length: 5 }, (_, i) =>
-                `<span class="fa fa-star ${i < stars ? "text-warning" : "text-secondary"}"></span>`
-            ).join("");
+        // 3. Fill HTML elements
+        document.getElementById("productTitle").innerText = product.title || "No Title Available";
+        document.getElementById("breadcrumbTitle").innerText = product.title || "Product";
+        document.getElementById("breadcrumbCategory").innerText = product.category_taxonomy || product.product_type || "General";
+        
+        document.getElementById("productPrice").innerText = `${priceValue} $`;
+        document.getElementById("productDescription").innerText = product.description || "No description available for this product yet.";
+        
+        // Add extra specs
+        let specsHtml = "";
+        if (product.brand) specsHtml += `<dt class="col-4 text-muted">Brand</dt><dd class="col-8">${product.brand}</dd>`;
+        if (product.color) specsHtml += `<dt class="col-4 text-muted">Color</dt><dd class="col-8">${product.color}</dd>`;
+        if (product.material) specsHtml += `<dt class="col-4 text-muted">Material</dt><dd class="col-8">${product.material}</dd>`;
+        if (product.style) specsHtml += `<dt class="col-4 text-muted">Style</dt><dd class="col-8">${product.style}</dd>`;
+        if (product.product_type) specsHtml += `<dt class="col-4 text-muted">Type</dt><dd class="col-8">${product.product_type}</dd>`;
+        if (product.category_taxonomy) specsHtml += `<dt class="col-4 text-muted">Category</dt><dd class="col-8">${product.category_taxonomy}</dd>`;
+        
+        const detailsContainer = document.querySelector("dl.row");
+        if (detailsContainer && specsHtml) {
+            detailsContainer.innerHTML = specsHtml;
         }
-        if (reviewEl) reviewEl.innerText = `${generateReviewCount(String(p.product_id))} Değerlendirme`;
 
-        // ── Teknik Özellikler ────────────────────────────────
-        if (specsEl) {
-            const specs = [
-                ["Marka",           p.brand],
-                ["Renk",            p.color],
-                ["Malzeme",         p.material],
-                ["Stil",            p.style],
-                ["Ürün Tipi",       p.product_type],
-                ["Model Yılı",      p.model_year],
-                ["Kategori",        p.category_taxonomy],
-            ].filter(([, val]) => val);
+        // Image placement
+        const imageUrl = product.image_url ? product.image_url : "https://via.placeholder.com/600x600?text=No+Image";
+        const mainImg = document.getElementById("mainImage");
+        if (mainImg) {
+            mainImg.src = imageUrl;
+            mainImg.style.mixBlendMode = "multiply";
+            document.getElementById("mainImageLink").href = imageUrl;
+            
+            // Refresh fslightbox
+            if (typeof refreshFsLightbox === 'function') refreshFsLightbox();
+        }
 
-            if (specs.length > 0) {
-                specsEl.innerHTML = specs
-                    .map(([label, val]) =>
-                        `<dt class="col-4 text-muted">${label}</dt><dd class="col-8">${val}</dd>`
-                    ).join("");
+        // Rating Stars (Random 3-5 stars)
+        const ratingStars = document.getElementById("ratingStars");
+        if (ratingStars) {
+            ratingStars.innerHTML = "";
+            const stars = 3 + (Math.abs(productId.charCodeAt(0)) % 3); // Between 3 and 5
+            for (let i = 1; i <= 5; i++) {
+                if (i <= stars) {
+                    ratingStars.innerHTML += `<span class="fa fa-star text-warning"></span>`;
+                } else {
+                    ratingStars.innerHTML += `<span class="fa fa-star text-secondary"></span>`;
+                }
             }
+            document.getElementById("ratingCount").innerText = `${(Math.abs(productId.charCodeAt(1)) % 100) + 15} Reviews`;
         }
 
-        // ── Mağaza / Ana Kategori ────────────────────────────
-        if (storeEl)   storeEl.innerText   = "AgenticCommerce";
-        if (mainCatEl) mainCatEl.innerText = p.category_taxonomy ? p.category_taxonomy.split("/")[0] : "—";
-
-        // ── Görsel ──────────────────────────────────────────
-        const imageUrl = p.image_url || "https://placehold.co/600x600/f5f0eb/8B4513?text=Görsel+Yok";
-        if (mainImgEl) {
-            mainImgEl.src             = imageUrl;
-            mainImgEl.alt             = title;
-            mainImgEl.style.mixBlendMode = "multiply";
-            mainImgEl.onerror = () => {
-                mainImgEl.src = "https://placehold.co/600x600/f5f0eb/8B4513?text=Görsel+Yok";
-            };
-        }
-        if (mainImgLinkEl) {
-            mainImgLinkEl.href = imageUrl;
-        }
-
-        // FSLightbox yenile (eğer yüklüyse)
-        if (typeof refreshFsLightbox === "function") refreshFsLightbox();
-
-    } catch (err) {
-        console.error("Ürün yüklenirken hata:", err);
-        if (titleEl) titleEl.innerText = "Ürün yüklenirken bir hata oluştu.";
-        if (descEl)  descEl.innerText  = "";
+    } catch (error) {
+        console.error("Error loading product:", error);
+        document.getElementById("productTitle").innerText = "An error occurred while loading the product.";
+        document.getElementById("productDescription").innerText = "";
     }
 });
