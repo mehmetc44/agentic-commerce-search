@@ -3,3 +3,6 @@ uvicorn>=0.53.0
 psycopg2-binary
 python-dotenv>=1.2.0
 pydantic>=2.0.0
+sentence-transformers==2.7.0
+torch
+transformers==4.40.1
