@@ -1,118 +1,117 @@
-let ws = null;
-
-function initWebSocket() {
-    if (!ws || ws.readyState === WebSocket.CLOSED) {
-        const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-        const wsUrl = `${protocol}${window.location.host}/api/v1/ws-search`;
-        ws = new WebSocket(wsUrl);
-        
-        ws.onopen = () => console.log("WebSocket connection established.");
-        
-        ws.onmessage = (event) => {
-            const msg = JSON.parse(event.data);
-            const logsContainer = document.getElementById("aiLogsContainer");
-            
-            if (msg.type === "log") {
-                // Clear the container if it has the "waiting" message
-                if (logsContainer.innerHTML.includes("Waiting for a search query")) {
-                    logsContainer.innerHTML = "";
-                }
-                const logEntry = document.createElement("div");
-                logEntry.className = "mb-3 p-3 rounded bg-white border-start border-4 border-primary shadow-sm";
-                logEntry.innerHTML = msg.message;
-                logsContainer.appendChild(logEntry);
-                logsContainer.scrollTop = logsContainer.scrollHeight;
-            } 
-            else if (msg.type === "result") {
-                // Update UI Title
-                const sectionTitle = document.querySelector("h3.h4");
-                if (sectionTitle) {
-                    sectionTitle.innerText = `Search Results for "${msg.data.original_query}" (${msg.data.total_found} Products Found)`;
-                }
-                
-                // Hide slider
-                const hero = document.getElementById("heroSection");
-                if (hero) hero.style.display = "none";
-                
-                // Render products with AI match badges
-                renderProducts(msg.data.products, true);
-                
-                const logEntry = document.createElement("div");
-                logEntry.className = "mb-3 p-3 rounded bg-success text-white shadow-sm text-center";
-                logEntry.innerHTML = `<strong><i class="fa fa-check-circle"></i> Completed!</strong><br>Total ${msg.data.total_found} products recommended.`;
-                logsContainer.appendChild(logEntry);
-                logsContainer.scrollTop = logsContainer.scrollHeight;
-            } 
-            else if (msg.type === "error") {
-                const logEntry = document.createElement("div");
-                logEntry.className = "mb-3 p-3 rounded bg-danger text-white shadow-sm";
-                logEntry.innerHTML = `<strong><i class="fa fa-exclamation-triangle"></i> Error:</strong><br>${msg.message}`;
-                logsContainer.appendChild(logEntry);
-                
-                // Remove loading animation from main screen
-                const resultsDiv = document.getElementById("results");
-                resultsDiv.innerHTML = `<div class="col-12 text-center mt-5 text-danger"><h5>An error occurred. Check the AI Panel.</h5></div>`;
-            }
-        };
-        
-        ws.onclose = () => {
-            console.log("WebSocket disconnected, retrying in 2 seconds...");
-            setTimeout(initWebSocket, 2000);
-        };
-    }
-}
-
-// Search Action
-function search() {
-    const query = document.getElementById("searchInput").value.trim();
-
-    if (!query) return;
-
-    // Hide slider/hero section
-    const hero = document.getElementById("heroSection");
-    if (hero) hero.style.display = "none";
-
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = `
-        <div class="col-12 text-center mt-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <h5 class="mt-3 text-muted">AI Hybrid Search is running...</h5>
-            <small class="text-muted">Please follow the process via the 'AI Panel' on the right.</small>
-        </div>
-    `;
-
-    // Clear log panel and add loading animation
-    const logsContainer = document.getElementById("aiLogsContainer");
-    logsContainer.innerHTML = `
-        <div class="text-center mt-3 text-primary">
-            <div class="spinner-border spinner-border-sm mb-2" role="status"></div><br>
-            Processing query...
-        </div>
-    `;
-    
-    // Auto-open panel
-    const aiPanelEl = document.getElementById("aiPanel");
-    const aiPanel = bootstrap.Offcanvas.getOrCreateInstance(aiPanelEl);
-    aiPanel.show();
-
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ query: query }));
-    } else {
-        console.error("WebSocket is not ready yet. Please wait.");
-        initWebSocket(); // Force retry
-    }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-    initWebSocket();
-    
+    const chatInput = document.getElementById("chatInput");
+    const chatSendBtn = document.getElementById("chatSendBtn");
+    const chatMessages = document.getElementById("chatMessages");
     const searchInput = document.getElementById("searchInput");
+
+    // Yardımcı: Mesaj Ekleme
+    function addMessage(text, isUser = false) {
+        if (!text.trim()) return;
+        
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "d-flex mb-3 " + (isUser ? "justify-content-end" : "");
+        
+        const innerDiv = document.createElement("div");
+        innerDiv.className = isUser 
+            ? "bg-light text-dark p-2 rounded shadow-sm border" 
+            : "bg-primary text-white p-2 rounded shadow-sm";
+        
+        // Chat baloncuğu yuvarlaklık ayarı
+        innerDiv.style.maxWidth = "80%";
+        innerDiv.style.borderRadius = isUser ? "15px 15px 0 15px" : "15px 15px 15px 0";
+        innerDiv.innerText = text;
+        
+        msgDiv.appendChild(innerDiv);
+        chatMessages.appendChild(msgDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Chat'ten Mesaj Gönderme
+    function handleChatSend() {
+        const text = chatInput.value.trim();
+        if (text) {
+            addMessage(text, true); // Kullanıcı mesajı
+            chatInput.value = "";
+            
+            // İşlevsiz bot cevabı (demo amaçlı)
+            setTimeout(() => {
+                addMessage("Şu an geliştirilme aşamasındayım, maalesef mesajınıza yanıt veremiyorum.");
+            }, 1000);
+        }
+    }
+
+    if (chatSendBtn) {
+        chatSendBtn.addEventListener("click", handleChatSend);
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") handleChatSend();
+        });
+    }
+
+    // Arama Çubuğu (Üst Kısım) Entegrasyonu
     if (searchInput) {
-        searchInput.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                search();
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Paneli Aç
+                    const aiPanelEl = document.getElementById("aiPanel");
+                    const aiPanel = bootstrap.Offcanvas.getOrCreateInstance(aiPanelEl);
+                    aiPanel.show();
+                    
+                    // Arama sorgusunu chat'e aktar
+                    addMessage(query, true);
+                    searchInput.value = "";
+                    
+                    // İşlevsiz cevap
+                    setTimeout(() => {
+                        addMessage(`"${query}" araması için henüz sonuç getiremiyorum.`);
+                    }, 1000);
+                }
             }
         });
     }
 });
+
+// Küresel arama butonu işlevi (Eğer index.html'den çağrılıyorsa)
+function search() {
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput && searchInput.value.trim()) {
+        const query = searchInput.value.trim();
+        const aiPanelEl = document.getElementById("aiPanel");
+        const aiPanel = bootstrap.Offcanvas.getOrCreateInstance(aiPanelEl);
+        aiPanel.show();
+        
+        const chatMessages = document.getElementById("chatMessages");
+        
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "d-flex mb-3 justify-content-end";
+        const innerDiv = document.createElement("div");
+        innerDiv.className = "bg-light text-dark p-2 rounded shadow-sm border";
+        innerDiv.style.maxWidth = "80%";
+        innerDiv.style.borderRadius = "15px 15px 0 15px";
+        innerDiv.innerText = query;
+        msgDiv.appendChild(innerDiv);
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        searchInput.value = "";
+        
+        setTimeout(() => {
+            const botDiv = document.createElement("div");
+            botDiv.className = "d-flex mb-3";
+            const botInnerDiv = document.createElement("div");
+            botInnerDiv.className = "bg-primary text-white p-2 rounded shadow-sm";
+            botInnerDiv.style.maxWidth = "80%";
+            botInnerDiv.style.borderRadius = "15px 15px 15px 0";
+            botInnerDiv.innerText = `"${query}" araması için sonuç getirme işlemi şu an devre dışı.`;
+            botDiv.appendChild(botInnerDiv);
+            chatMessages.appendChild(botDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1000);
+    }
+}

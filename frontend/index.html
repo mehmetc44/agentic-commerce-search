@@ -151,23 +151,39 @@
         </div>
     </footer>
 
-    <!-- AI Pipeline Live Panel -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="aiPanel" aria-labelledby="aiPanelLabel">
-      <div class="offcanvas-header bg-light border-bottom">
-        <h5 class="offcanvas-title text-dark" id="aiPanelLabel"><i class="fa fa-robot"></i> AI Canlı Panel</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body bg-white" id="aiLogsContainer" style="font-family: monospace; font-size: 0.9rem; overflow-y: auto;">
-        <div class="text-muted text-center mt-5">
-            <i class="fa fa-search fa-2x mb-2"></i><br>
-            Arama sorgusu bekleniyor...
+    <!-- AI Chat Panel -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="aiPanel" aria-labelledby="aiPanelLabel" style="width: 400px;">
+        <div class="offcanvas-header bg-light border-bottom">
+            <h5 class="offcanvas-title text-dark fw-bold d-flex align-items-center" id="aiPanelLabel">
+                <i class="fa-solid fa-sparkles text-primary me-2"></i> Alışveriş Asistanı
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
         </div>
-      </div>
+        <div class="offcanvas-body d-flex flex-column bg-white p-0">
+            <!-- Chat Messages Area -->
+            <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto; background-color: #f9fbfc;">
+                <div class="d-flex mb-3">
+                    <div class="bg-primary text-white p-2 rounded shadow-sm" style="max-width: 80%; border-radius: 15px 15px 15px 0 !important;">
+                        Merhaba! Ben sizin yapay zeka destekli alışveriş asistanınızım. Size nasıl yardımcı olabilirim? (Şu an deneme aşamasındayım)
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Input Area -->
+            <div class="border-top p-3 bg-light">
+                <div class="input-group">
+                    <input type="text" id="chatInput" class="form-control rounded-pill me-2" placeholder="Mesajınızı yazın..." style="border: 1px solid #dee2e6;">
+                    <button class="btn btn-primary rounded-circle" id="chatSendBtn" style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js?v=2"></script>
-    <script src="js/search.js?v=2"></script>
+    <script src="js/search.js?v=3"></script>
 
 </body>
 
