@@ -1,5 +1,8 @@
-// Common API address
+// AI Servisi (chatbot) — aynı origin (port 8000)
 const BASE_URL = window.location.origin;
+
+// Catalog API (ürün & kategori DB) — port 8001
+const CATALOG_API_URL = "http://localhost:8001";
 
 // Consistent random price generator (based on Product ID) - 5$ ile 25$ arası
 function generatePrice(productId) {
@@ -14,7 +17,7 @@ function generatePrice(productId) {
 // Fetch categories from API and populate menus
 async function loadCategories() {
     try {
-        const response = await fetch(`${BASE_URL}/api/v1/categories`);
+        const response = await fetch(`${CATALOG_API_URL}/categories`);
         if (!response.ok) return;
         
         const data = await response.json();
@@ -81,7 +84,7 @@ async function loadProductsByCategory(categoryId, categoryName) {
     `;
     
     try {
-        const response = await fetch(`${BASE_URL}/api/v1/products/category/${categoryId}`);
+        const response = await fetch(`${CATALOG_API_URL}/products/category/${categoryId}`);
         if (!response.ok) throw new Error("Network error");
         
         const data = await response.json();

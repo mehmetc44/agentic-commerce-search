@@ -20,7 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // 2. Fetch product details from Backend
-        const response = await fetch(`/api/v1/products/${productId}`);
+        const CATALOG_API_URL = "http://localhost:8001";
+        const response = await fetch(`${CATALOG_API_URL}/products/${productId}`);
+
         
         if (!response.ok) {
             throw new Error("Product could not be loaded.");

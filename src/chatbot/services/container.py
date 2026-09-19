@@ -1,9 +1,20 @@
+"""
+ServicesContainer — AI servisi için singleton kaynak yöneticisi.
+
+Başlatılan kaynaklar:
+  - SentenceTransformer  (embedding modeli — sorguları vektörleştirir)
+  - CrossEncoder         (re-ranking modeli — adayları sıralar)
+  - CatalogAPIClient     (catalog-api HTTP istemcisi — ham DB sonuçlarını getirir)
+
+Veritabanı bağlantısı, kategori eşleme ve ürün arama servisleri
+artık catalog-api'de yaşar. Bu container sadece AI model kaynaklarını tutar.
+"""
+
 import torch
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from chatbot.core.config import settings
-from chatbot.infrastructure.db_client import DatabaseClient
-from chatbot.services.category_matcher_service import CategoryMatcherService
-from chatbot.services.product_search_service import ProductSearchService
+from chatbot.clients.catalog_client import CatalogAPIClient
+
 
 class ServicesContainer:
     _instance = None
@@ -15,28 +26,26 @@ class ServicesContainer:
         return cls._instance
 
     def _initialize(self):
-        print("⏳ [Container] Servisler ve Yapay Zeka modelleri başlatılıyor (Bu işlem 1 kez yapılır)...")
-        self.db_client = DatabaseClient()
-        
+        print("⏳ [AI Container] AI modelleri yükleniyor (Bu işlem 1 kez yapılır)...")
+
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        
-        print("⏳ [Container] SentenceTransformer Yükleniyor...")
-        self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL_PATH, device=device)
-        
-        print("⏳ [Container] CrossEncoder Yükleniyor...")
-        self.cross_encoder = CrossEncoder(settings.CROSS_ENCODER_PATH, device=device)
-        
-        self.category_matcher = CategoryMatcherService(self.db_client)
-        # Category matcher creates its own models if not injected, but we modified it? Wait, let's inject.
-        self.category_matcher.embedding_model = self.embedding_model
-        self.category_matcher.cross_encoder = self.cross_encoder
-        
-        self.product_search = ProductSearchService(
-            db_client=self.db_client,
-            embedding_model=self.embedding_model,
-            cross_encoder=self.cross_encoder
+        print(f"    📟 Cihaz: {device.upper()}")
+
+        print("⏳ [AI Container] SentenceTransformer yükleniyor...")
+        self.embedding_model = SentenceTransformer(
+            settings.EMBEDDING_MODEL_PATH, device=device
         )
-        print("✅ [Container] Tüm servisler başarıyla yüklendi!")
+
+        print("⏳ [AI Container] CrossEncoder yükleniyor...")
+        self.cross_encoder = CrossEncoder(
+            settings.CROSS_ENCODER_PATH, device=device
+        )
+
+        print("⏳ [AI Container] Catalog API istemcisi başlatılıyor...")
+        self.catalog_client = CatalogAPIClient()
+
+        print(f"✅ [AI Container] Hazır. Catalog API: {settings.CATALOG_API_URL}")
+
 
 # Global singleton
 container = ServicesContainer()
