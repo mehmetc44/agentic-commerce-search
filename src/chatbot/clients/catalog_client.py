@@ -1,13 +1,8 @@
 """
-CatalogAPIClient — AI servisinin catalog-api ile konuştuğu HTTP istemcisi.
+catalog_client.py — AI servisinin catalog-api ile konuştuğu HTTP istemcisi.
 
-AI servisi bu istemci üzerinden:
-  1. Kategori adaylarını sorgular   (POST /categories/vector-search)
-  2. Ürün adaylarını sorgular       (POST /products/vector-search)
-  3. Kategori filtrelerini öğrenir  (GET  /categories/{id}/filters)
-
-Vektör hesaplama ve cross-encoder re-ranking AI servisinde yapılır;
-bu istemci sadece ham DB sonuçlarını alır.
+catalog-api artık tüm AI işlemlerini (embedding, cross-encoder) kendi içinde yapıyor.
+Bu istemci sadece doğal dil metni gönderir, hazır sıralanmış sonuçları alır.
 """
 
 import httpx
@@ -19,20 +14,21 @@ class CatalogAPIClient:
         self.base_url = settings.CATALOG_API_URL.rstrip("/")
 
     # ------------------------------------------------------------------
-    # KATEGORİ İSTEKLERİ
+    # KATEGORİ
     # ------------------------------------------------------------------
 
-    def search_categories_by_vector(
-        self, query_vector: list, limit: int = 20
-    ) -> list:
+    def search_categories(self, query: str, limit: int = 5) -> list:
         """
-        Catalog API'ye vektörü gönderir, ham kategori adaylarını alır.
-        Her eleman: { id, name, full_path, description, cosine_sim }
+        Doğal dil query'i gönderir, sıralanmış kategori listesi alır.
+        Embedding ve cross-encoder catalog-api tarafında çalışır.
+
+        Returns:
+            [{ id, name, full_path, confidence }, ...]
         """
         response = httpx.post(
-            f"{self.base_url}/categories/vector-search",
-            json={"query_vector": query_vector, "limit": limit},
-            timeout=30.0,
+            f"{self.base_url}/categories/search",
+            json={"query": query, "limit": limit},
+            timeout=60.0,
         )
         response.raise_for_status()
         return response.json().get("data", [])
@@ -47,26 +43,28 @@ class CatalogAPIClient:
         return response.json().get("data", {})
 
     # ------------------------------------------------------------------
-    # ÜRÜN İSTEKLERİ
+    # ÜRÜN
     # ------------------------------------------------------------------
 
-    def search_products_by_vector(
+    def search_products(
         self,
-        query_vector: list,
+        query: str,
         category_ids: list = None,
         brand: str = None,
         color: str = None,
-        limit: int = 200,
+        max_results: int = 10,
     ) -> list:
         """
-        Catalog API'ye vektör + filtreleri gönderir, ham ürün adaylarını alır.
-        Her eleman: { product_id, title, description, image_url, brand, color, ... }
-        Cross-encoder re-ranking bu metod dönüşünden sonra yapılır.
+        Doğal dil query'i ve filtreleri gönderir, sıralanmış ürün listesi alır.
+        Embedding ve cross-encoder catalog-api tarafında çalışır.
+
+        Returns:
+            [{ product_id, title, image_url, brand, color, category_id, match_score }, ...]
         """
         payload = {
-            "query_vector": query_vector,
+            "query": query,
             "category_ids": category_ids or [],
-            "limit": limit,
+            "max_results": max_results,
         }
         if brand:
             payload["brand"] = brand
@@ -74,9 +72,9 @@ class CatalogAPIClient:
             payload["color"] = color
 
         response = httpx.post(
-            f"{self.base_url}/products/vector-search",
+            f"{self.base_url}/products/search",
             json=payload,
-            timeout=60.0,
+            timeout=120.0,
         )
         response.raise_for_status()
         return response.json().get("data", [])
