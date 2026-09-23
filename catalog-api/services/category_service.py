@@ -12,3 +12,6 @@ class CategoryService:
 
     def get_main_categories(self, limit: int = 100):
         return self.repository.get_main_categories(limit)
+
+    def get_closest_categories(self, vector: list[float], limit: int = 10):
+        return self.repository.get_closest(vector, limit)

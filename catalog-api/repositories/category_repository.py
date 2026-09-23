@@ -28,3 +28,21 @@ class CategoryRepository:
                 return cursor.fetchall()
         finally:
             DBContext.release_connection(conn)
+
+    def get_closest(self, vector: list[float], limit: int = 10):
+        conn = DBContext.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                vector_str = "[" + ",".join(map(str, vector)) + "]"
+                query = """
+                SELECT id, name, level, full_path, trendyol_cat_id, is_leaf, parent_id,
+                       1 - (embedding <=> %s::vector) AS similarity
+                FROM categories
+                WHERE embedding IS NOT NULL
+                ORDER BY embedding <=> %s::vector
+                LIMIT %s
+                """
+                cursor.execute(query, (vector_str, vector_str, limit))
+                return cursor.fetchall()
+        finally:
+            DBContext.release_connection(conn)

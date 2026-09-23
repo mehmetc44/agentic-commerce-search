@@ -14,6 +14,10 @@ class CategoryResponse(CategoryBase):
     id: int
     parent_id: Optional[int] = None
 
+class VectorSearchRequest(BaseModel):
+    vector: List[float]
+    limit: Optional[int] = 10
+
 # ----------------- PRODUCT SCHEMAS -----------------
 class ProductBase(BaseModel):
     name: str

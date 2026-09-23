@@ -6,7 +6,6 @@ DB ve ürün/kategori endpointleri catalog-api (Port: 8001) servisine taşındı
 """
 
 from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sys
@@ -64,6 +63,3 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# Frontend statik dosyaları
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

@@ -8,6 +8,7 @@ catalog-api tarafında gerçekleşir.
 from langchain_core.tools import tool
 import json
 from chatbot.clients.catalog_client import CatalogAPIClient
+from chatbot.services.embedding_service import embedding_service
 
 _client = CatalogAPIClient()
 
@@ -26,7 +27,8 @@ def get_closest_categories(sample_query: str) -> str:
         JSON string formatında eşleşen kategorilerin ID, isim ve full_path bilgileri.
     """
     try:
-        results = _client.search_categories(sample_query, limit=5)
+        vector = embedding_service.embed(sample_query)
+        results = _client.get_closest_categories(vector, limit=5)
         return json.dumps(results, ensure_ascii=False)
     except Exception as e:
         return json.dumps({"error": str(e)})

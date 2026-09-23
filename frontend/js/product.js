@@ -9,7 +9,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // 1. Fetch product details
-        const response = await fetch(`/api/v1/products/${productId}`);
+const BASE_URL = "http://localhost:8001";
+
+        const response = await fetch(`${BASE_URL}/api/v1/products/${productId}`);
         if (!response.ok) throw new Error("Ürün yüklenemedi.");
 
         const data = await response.json();
@@ -115,7 +117,7 @@ async function loadReviews(productId) {
     if (!reviewsContainer) return;
     
     try {
-        const response = await fetch(`/api/v1/reviews/product/${productId}`);
+        const response = await fetch(`${BASE_URL}/api/v1/reviews/product/${productId}`);
         if (!response.ok) throw new Error("Yorumlar yüklenemedi.");
         
         const reviews = await response.json();

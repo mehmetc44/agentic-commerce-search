@@ -17,21 +17,20 @@ class CatalogAPIClient:
     # KATEGORİ
     # ------------------------------------------------------------------
 
-    def search_categories(self, query: str, limit: int = 5) -> list:
+    def get_closest_categories(self, vector: list[float], limit: int = 5) -> list:
         """
-        Doğal dil query'i gönderir, sıralanmış kategori listesi alır.
-        Embedding ve cross-encoder catalog-api tarafında çalışır.
+        Vektör gönderir, cosine similarity'ye göre sıralanmış kategori listesi alır.
 
         Returns:
-            [{ id, name, full_path, confidence }, ...]
+            [{ id, name, full_path, similarity }, ...]
         """
         response = httpx.post(
-            f"{self.base_url}/categories/search",
-            json={"query": query, "limit": limit},
-            timeout=60.0,
+            f"{self.base_url}/categories/closest",
+            json={"vector": vector, "limit": limit},
+            timeout=10.0,
         )
         response.raise_for_status()
-        return response.json().get("data", [])
+        return response.json()
 
     def get_category_filters(self, category_id: str) -> dict:
         """Kategoriye özel kullanılabilir filtre listesini döner."""

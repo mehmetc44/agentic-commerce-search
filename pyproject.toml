@@ -1,7 +1,7 @@
 [project]
-name = "chatbot"
+name = "agentic-commerce"
 version = "0.1.0"
-description = "Add your description here"
+description = "AgenticCommerce — AI destekli e-ticaret platformu"
 readme = "README.md"
 authors = [
     { name = "Mehmet CAKMAK" }
@@ -28,10 +28,3 @@ dependencies = [
     "uvicorn>=0.53.0",
     "websockets>=16.1.1",
 ]
-
-[project.scripts]
-chatbot = "chatbot:main"
-
-[build-system]
-requires = ["uv_build>=0.12.0,<0.13.0"]
-build-backend = "uv_build"

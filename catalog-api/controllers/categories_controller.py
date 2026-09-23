@@ -1,10 +1,17 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from services.category_service import CategoryService
-from models.schemas import CategoryResponse
+from models.schemas import CategoryResponse, VectorSearchRequest
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 service = CategoryService()
+
+@router.post("/closest", response_model=List[CategoryResponse])
+def get_closest_categories(request: VectorSearchRequest):
+    try:
+        return service.get_closest_categories(request.vector, request.limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/", response_model=List[CategoryResponse])
 def get_categories(limit: int = 100):

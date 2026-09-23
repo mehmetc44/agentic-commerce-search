@@ -1,5 +1,5 @@
 // Common API address
-const BASE_URL = window.location.origin;
+const BASE_URL = "http://localhost:8001";
 
 
 // Fetch categories from API and populate menus
