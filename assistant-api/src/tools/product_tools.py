@@ -8,7 +8,7 @@ catalog-api tarafında gerçekleşir.
 from langchain_core.tools import tool
 import json
 from typing import List, Optional
-from chatbot.clients.catalog_client import CatalogAPIClient
+from clients.catalog_client import CatalogAPIClient
 
 _client = CatalogAPIClient()
 

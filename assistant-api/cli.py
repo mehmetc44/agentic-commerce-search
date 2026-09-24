@@ -2,9 +2,9 @@ import os
 import sys
 
 # Add src to python path if not already there
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
 
-from chatbot.graph import app_graph
+from graph import app_graph
 
 def main():
     print("🤖 Agentic Commerce CLI 🤖")

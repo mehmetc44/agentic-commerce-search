@@ -7,8 +7,8 @@ Tüm AI işlemleri (embedding, cross-encoder) catalog-api'de yapılır.
 Bu container sadece CatalogAPIClient'ı başlatır.
 """
 
-from chatbot.clients.catalog_client import CatalogAPIClient
-from chatbot.core.config import settings
+from clients.catalog_client import CatalogAPIClient
+from core.config import settings
 
 
 class ServicesContainer:

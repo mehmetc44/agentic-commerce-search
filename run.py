@@ -69,7 +69,7 @@ if __name__ == "__main__":
         name="assistant-api",
         cwd=os.path.join(ROOT, "assistant-api"),
         command=[
-            sys.executable, "-m", "uvicorn", "app:app",
+            sys.executable, "-m", "uvicorn", "main:app",
             "--host", "0.0.0.0",
             "--port", "8000",
             "--reload",

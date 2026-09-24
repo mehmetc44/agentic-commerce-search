@@ -5,10 +5,10 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import SystemMessage, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
 
-from chatbot.agents.base_agent import BaseAgent
-from chatbot.tools.web_search import web_search_tool
-from chatbot.tools.category_tools import get_closest_categories, get_category_filters
-from chatbot.tools.product_tools import list_closest_products
+from agents.base_agent import BaseAgent
+from tools.web_search import web_search_tool
+from tools.category_tools import get_closest_categories, get_category_filters
+from tools.product_tools import list_closest_products
 import json
 
 class GraphState(TypedDict):
