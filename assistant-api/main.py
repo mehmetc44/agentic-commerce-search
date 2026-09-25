@@ -14,13 +14,16 @@ import os
 # Add src directory to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
 
-from graph.workflow import app_graph
+from graph.workflow import AgenticCommerceWorkflow
 
 app = FastAPI(
     title="AgenticCommerce — AI Service",
     description="AI chatbot servisi. DB işlemleri için catalog-api kullanılır.",
     version="2.0.0",
 )
+
+# Uygulama ayağa kalkarken graph'ı (ve agent'ları) başlatıyoruz
+workflow_engine = AgenticCommerceWorkflow()
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,22 +46,14 @@ async def health():
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     try:
-        initial_state = {
-            "user_query": request.query,
-            "analysis": "",
-            "response": "",
-        }
+        # LangGraph grafiğini (Workflow Engine üzerinden) çalıştır
+        final_state = workflow_engine.execute(request.query)
 
-        # LangGraph grafiğini çalıştır
-        final_state = app_graph.invoke(initial_state)
-
-        response_text = final_state.get("response", "Yanıt oluşturulamadı.")
-        products = final_state.get("products", [])
-
+        # Şimdilik dönen intent'i test amaçlı görebiliriz
         return {
-            "analysis": final_state.get("analysis", ""),
-            "response": response_text,
-            "products": products,
+            "intent": final_state.get("intent", ""),
+            "supervisor_reasoning": final_state.get("supervisor_reasoning", ""),
+            "response": final_state.get("response", "")
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

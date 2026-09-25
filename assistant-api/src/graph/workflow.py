@@ -2,24 +2,46 @@ from langgraph.graph import StateGraph, START, END
 from graph.state import AgenticCommerceState
 from agents.supervisor import SupervisorAgent
 
-def create_workflow() -> StateGraph:
+class AgenticCommerceWorkflow:
     """
-    Sistemin ana LangGraph iş akışını (workflow) oluşturur.
-    Şu an için sadece Supervisor Agent tanımlı.
+    Sistemin ana iş akışını (LangGraph) yöneten sınıf.
+    Bağımlılıkları (Agent'ları) başlatır, düğümleri (node) bağlar ve execution işlemlerini yönetir.
     """
-    workflow = StateGraph(AgenticCommerceState)
 
-    # 1. Agent'ı başlat
-    supervisor = SupervisorAgent()
+    def __init__(self):
+        # 1. Bağımlılıkları (Agent'ları) başlat
+        self.supervisor = SupervisorAgent()
+        
+        # 2. Graph'ı inşa et ve derle
+        self.app_graph = self._build_graph()
 
-    # 2. Node olarak ekle (node fonksiyonu: state alır, dict döner)
-    workflow.add_node("supervisor_node", supervisor.invoke)
+    def _build_graph(self):
+        """Graph yapısını (Node'lar ve Edge'ler) kurar."""
+        workflow = StateGraph(AgenticCommerceState)
 
-    # 3. Kenarları (Edge) tanımla
-    workflow.add_edge(START, "supervisor_node")
-    workflow.add_edge("supervisor_node", END)
+        # Node'ları ekle
+        workflow.add_node("supervisor_node", self.supervisor.invoke)
 
-    return workflow.compile()
+        # Temel Edge'leri kur (Şimdilik çok basit)
+        workflow.add_edge(START, "supervisor_node")
+        workflow.add_edge("supervisor_node", END)
 
-# Dışarıdan kullanılacak ana graph nesnesi
-app_graph = create_workflow()
+        # Graph'ı derle (Compile) ve geri dön
+        return workflow.compile()
+
+    def execute(self, user_query: str) -> dict:
+        """
+        Sistemi dışarıdan tetiklemek için kullanılacak yardımcı metot.
+        State'i hazırlar ve graph'ı çalıştırıp sonucu döner.
+        """
+        initial_state = {
+            "user_query": user_query,
+            "messages": [],
+            "intent": "",
+            "supervisor_reasoning": "",
+            "response": ""
+        }
+        
+        # Graph'ı senkron olarak çalıştır
+        result = self.app_graph.invoke(initial_state)
+        return result
