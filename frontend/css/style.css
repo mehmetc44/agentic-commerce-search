@@ -308,3 +308,8 @@ body {
     .app-container { height: 100vh; border-radius: 0; border: none; }
     .message { max-width: 95%; }
 }
+
+/* AI Hover Button on Product Cards */
+.product-card:hover .ai-hover-overlay {
+    opacity: 1 !important;
+}

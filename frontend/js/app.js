@@ -156,6 +156,13 @@ function renderProducts(products, isAiSearch = false) {
                     <div class="img-wrap bg-white" style="height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
                         <img src="${imageUrl}" alt="${productName}" style="max-height: 100%; max-width: 100%; object-fit: cover;">
                         ${badgeHtml}
+                        
+                        <!-- AI Add Button (Shows on Hover) -->
+                        <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 ai-hover-overlay" style="top: 0; left: 0; opacity: 0; transition: opacity 0.2s;">
+                            <button class="btn btn-warning rounded-pill shadow fw-bold" onclick="event.stopPropagation(); addToAIContext('${p.id}', '${productName.replace(/'/g, "\\'")}', '${imageUrl}', '${priceText}')">
+                                <i class="fa-solid fa-sparkles me-1"></i> AI'a Sor
+                            </button>
+                        </div>
                     </div>
 
                     <div class="info-wrap p-2 d-flex flex-column bg-white text-start" style="flex-grow: 1;">
@@ -176,6 +183,65 @@ function renderProducts(products, isAiSearch = false) {
             </div>
         `;
     });
+}
+
+// Global context array to hold selected products
+window.aiSelectedProducts = [];
+
+// Function to add product to AI Context
+function addToAIContext(id, name, image, price) {
+    // Check if already added
+    if (window.aiSelectedProducts.find(p => p.id === id)) {
+        openAIPanel();
+        return;
+    }
+
+    const product = { id, name, image, price };
+    window.aiSelectedProducts.push(product);
+    
+    renderAIContext();
+    openAIPanel();
+}
+
+// Function to remove product from AI Context
+function removeFromAIContext(id) {
+    window.aiSelectedProducts = window.aiSelectedProducts.filter(p => p.id !== id);
+    renderAIContext();
+}
+
+// Function to render the context area above the chat input
+function renderAIContext() {
+    const contextArea = document.getElementById("aiContextArea");
+    if (!contextArea) return;
+    
+    if (window.aiSelectedProducts.length === 0) {
+        contextArea.style.setProperty("display", "none", "important");
+        contextArea.innerHTML = "";
+        return;
+    }
+    
+    contextArea.style.setProperty("display", "flex", "important");
+    contextArea.innerHTML = window.aiSelectedProducts.map(p => `
+        <div class="d-inline-flex align-items-center bg-white border rounded shadow-sm p-1 position-relative" style="min-width: 150px; max-width: 200px;">
+            <img src="${p.image}" class="rounded" style="width: 30px; height: 30px; object-fit: cover; margin-right: 8px;">
+            <div class="text-truncate" style="font-size: 0.75rem; line-height: 1.1;">
+                <div class="fw-bold text-truncate">${p.name}</div>
+                <div class="text-primary">${p.price}</div>
+            </div>
+            <button onclick="removeFromAIContext('${p.id}')" class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 p-0 m-1" style="line-height: 0.5;">
+                <i class="fa-solid fa-times-circle"></i>
+            </button>
+        </div>
+    `).join("");
+}
+
+// Helper to open the AI offcanvas
+function openAIPanel() {
+    const aiPanelEl = document.getElementById('aiPanel');
+    if (aiPanelEl) {
+        const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(aiPanelEl);
+        bsOffcanvas.show();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", loadProducts);

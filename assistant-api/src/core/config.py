@@ -17,8 +17,8 @@ class Settings:
 
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
-
     CATALOG_API_URL: str = os.getenv("CATALOG_API_URL", "http://localhost:8001")
+    EMBEDDING_MODEL_PATH: str = os.getenv("EMBEDDING_MODEL_PATH", "../shared/ai-models/embeddings")
 
 
 settings = Settings()

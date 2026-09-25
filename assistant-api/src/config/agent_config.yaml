@@ -25,7 +25,6 @@ supervisor:
     - product_review
     - web_research
     - clarification_needed
-    - general_chat
 
 # ------------------------------------------------------------
 # Search Agent (ReAct Loop)
@@ -100,6 +99,6 @@ response_builder:
 # Görev: Metinden vektör üret (get_closest_categories tool'u kullanır)
 # ------------------------------------------------------------
 embedding:
-  model: all-MiniLM-L6-v2    # sentence-transformers modeli
-  vector_dimension: 384
-  device: cpu                  # cpu | cuda | mps
+  model: Trendyol/TY-ecomm-embed-multilingual-base-v1.2.0
+  vector_dimension: 768
+  device: cpu
