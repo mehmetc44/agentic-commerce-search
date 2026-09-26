@@ -12,3 +12,4 @@ class AgenticCommerceState(TypedDict):
     intent: str
     supervisor_reasoning: str
     response: str
+    context_products: list[dict]

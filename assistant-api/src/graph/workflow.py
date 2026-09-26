@@ -61,7 +61,7 @@ class AgenticCommerceWorkflow:
 
         return workflow.compile()
 
-    def execute(self, user_query: str) -> dict:
+    def execute(self, user_query: str, context_products: list = None) -> dict:
         """
         Sistemi dışarıdan tetiklemek için kullanılacak yardımcı metot.
         State'i hazırlar ve graph'ı çalıştırıp sonucu döner.
@@ -71,7 +71,8 @@ class AgenticCommerceWorkflow:
             "messages": [],
             "intent": "",
             "supervisor_reasoning": "",
-            "response": ""
+            "response": "",
+            "context_products": context_products or []
         }
         
         # Graph'ı senkron olarak çalıştır

@@ -36,6 +36,7 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     query: str
+    context_products: list[dict] = []
 
 
 @app.get("/health")
@@ -47,7 +48,10 @@ async def health():
 async def chat_endpoint(request: ChatRequest):
     try:
         # LangGraph grafiğini (Workflow Engine üzerinden) çalıştır
-        final_state = workflow_engine.execute(request.query)
+        final_state = workflow_engine.execute(
+            user_query=request.query,
+            context_products=request.context_products
+        )
 
         # Şimdilik dönen intent'i test amaçlı görebiliriz
         return {

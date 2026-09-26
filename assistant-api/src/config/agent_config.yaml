@@ -25,7 +25,6 @@ supervisor:
     - product_review
     - web_research
     - clarification_needed
-
 # ------------------------------------------------------------
 # Search Agent (ReAct Loop)
 # Görev: Kategori bul → ürün ara → sonuç döndür

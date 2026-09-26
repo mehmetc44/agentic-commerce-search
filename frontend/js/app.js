@@ -244,4 +244,106 @@ function openAIPanel() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", loadProducts);
+// AI Chat Interaction Logic
+async function sendMessageToAI() {
+    const inputEl = document.getElementById("chatInput");
+    const query = inputEl.value.trim();
+    if (!query) return;
+
+    const chatMessages = document.getElementById("chatMessages");
+
+    // Add user message to UI
+    chatMessages.innerHTML += `
+        <div class="d-flex mb-3 justify-content-end">
+            <div class="bg-primary text-white p-2 rounded shadow-sm" style="max-width: 80%; border-radius: 15px 15px 0 15px !important;">
+                ${query}
+            </div>
+        </div>
+    `;
+    inputEl.value = "";
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Add typing indicator
+    const typingId = "typing-" + Date.now();
+    chatMessages.innerHTML += `
+        <div id="${typingId}" class="d-flex mb-3">
+            <div class="bg-light text-dark p-2 rounded shadow-sm border" style="max-width: 80%; border-radius: 15px 15px 15px 0 !important;">
+                <i class="fa-solid fa-ellipsis fa-fade"></i> Düşünüyor...
+            </div>
+        </div>
+    `;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+        const response = await fetch("http://localhost:8000/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: query,
+                context_products: window.aiSelectedProducts
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        
+        // Remove typing indicator
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+
+        // Convert newlines to HTML breaks and render markdown if possible (simple fallback)
+        const formattedResponse = data.response.replace(/\n/g, '<br>');
+
+        // Add AI response to UI
+        chatMessages.innerHTML += `
+            <div class="d-flex mb-3">
+                <div class="bg-white text-dark p-3 rounded shadow-sm border" style="max-width: 90%; border-radius: 15px 15px 15px 0 !important;">
+                    ${formattedResponse}
+                </div>
+            </div>
+        `;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Clear context after successful query if desired (optional)
+        // window.aiSelectedProducts = [];
+        // renderAIContext();
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+        
+        chatMessages.innerHTML += `
+            <div class="d-flex mb-3">
+                <div class="bg-danger text-white p-2 rounded shadow-sm" style="max-width: 80%; border-radius: 15px 15px 15px 0 !important;">
+                    Üzgünüm, şu an bağlantı kuramıyorum. Lütfen sistemin çalıştığından emin olun.
+                </div>
+            </div>
+        `;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadProducts();
+    
+    // Bind chat events
+    const sendBtn = document.getElementById("chatSendBtn");
+    const inputEl = document.getElementById("chatInput");
+    
+    if (sendBtn) {
+        sendBtn.addEventListener("click", sendMessageToAI);
+    }
+    if (inputEl) {
+        inputEl.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessageToAI();
+            }
+        });
+    }
+});

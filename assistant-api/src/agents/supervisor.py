@@ -17,8 +17,8 @@ class SupervisorAgent(BaseAgent):
         # YAML'dan gelen geçerli niyet listesi
         self.valid_intents = self.config.get("intents", [])
         
-        # LLM çıktısını Pydantic nesnesine zorlar (JSON mode / Function calling)
-        self.structured_llm = self.llm.with_structured_output(IntentOutput)
+        # LLM çıktısını Pydantic nesnesine zorlar (json_mode ile çalışır, DeepSeek için gereklidir)
+        self.structured_llm = self.llm.with_structured_output(IntentOutput, method="json_mode")
         
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", SUPERVISOR_SYSTEM_PROMPT),
