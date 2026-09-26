@@ -158,9 +158,15 @@ function renderProducts(products, isAiSearch = false) {
                         ${badgeHtml}
                         
                         <!-- AI Add Button (Shows on Hover) -->
-                        <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 ai-hover-overlay" style="top: 0; left: 0; opacity: 0; transition: opacity 0.2s;">
-                            <button class="btn btn-warning rounded-pill shadow fw-bold" onclick="event.stopPropagation(); addToAIContext('${p.id}', '${productName.replace(/'/g, "\\'")}', '${imageUrl}', '${priceText}')">
-                                <i class="fa-solid fa-sparkles me-1"></i> AI'a Sor
+                        <div class="position-absolute p-2 ai-hover-overlay" style="top: 0; right: 0; z-index: 10;">
+                            <button class="btn btn-sm btn-warning rounded shadow fw-bold ai-add-btn" 
+                                    title="AI'a Sor (Bağlama Ekle)" 
+                                    data-id="${p.id}" 
+                                    data-name="${(p.name || p.title || '').replace(/"/g, '&quot;')}" 
+                                    data-image="${imageUrl}" 
+                                    data-price="${priceText}"
+                                    onclick="event.stopPropagation(); addToAIContext(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-image'), this.getAttribute('data-price'))">
+                                <i class="fa-solid fa-plus me-1"></i> Ekle
                             </button>
                         </div>
                     </div>

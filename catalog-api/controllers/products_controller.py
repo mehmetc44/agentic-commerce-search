@@ -6,7 +6,7 @@ from models.schemas import ProductResponse
 router = APIRouter(prefix="/products", tags=["Products"])
 service = ProductService()
 
-@router.get("/", response_model=List[ProductResponse])
+@router.get("", response_model=List[ProductResponse])
 def get_products(limit: int = 100):
     try:
         return service.get_products(limit)

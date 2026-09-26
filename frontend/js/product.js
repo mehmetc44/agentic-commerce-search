@@ -1,3 +1,5 @@
+const BASE_URL = "http://localhost:8001";
+
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
@@ -9,8 +11,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // 1. Fetch product details
-const BASE_URL = "http://localhost:8001";
-
         const response = await fetch(`${BASE_URL}/api/v1/products/${productId}`);
         if (!response.ok) throw new Error("Ürün yüklenemedi.");
 
